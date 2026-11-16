@@ -3,13 +3,13 @@
 import { useMemo, useState } from "react";
 import { motion } from "motion/react";
 import {
-  allAccounts,
   accountsTotalCount,
   getAccountsHeaderSummary,
   type Account,
   type AccountStatus,
 } from "@/data/accounts";
 import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
+import { useComputedAccounts } from "@/lib/useComputedAccounts";
 import { AccountDrawer } from "./AccountDrawer";
 import { AppShell } from "./AppShell";
 
@@ -130,14 +130,18 @@ function SortArrow({ active, dir }: { active: boolean; dir: SortDir }) {
 
 export function AccountsScreen() {
   const reducedMotion = usePrefersReducedMotion();
+  const allAccounts = useComputedAccounts();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [sortKey, setSortKey] = useState<SortKey>("risk");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
-  const counts = useMemo(() => statusCounts(allAccounts), []);
-  const summary = useMemo(() => getAccountsHeaderSummary(allAccounts), []);
+  const counts = useMemo(() => statusCounts(allAccounts), [allAccounts]);
+  const summary = useMemo(
+    () => getAccountsHeaderSummary(allAccounts),
+    [allAccounts],
+  );
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -149,7 +153,7 @@ export function AccountsScreen() {
       rows = rows.filter((a) => a.name.toLowerCase().includes(q));
     }
     return [...rows].sort((a, b) => compareAccounts(a, b, sortKey, sortDir));
-  }, [search, statusFilter, sortKey, sortDir]);
+  }, [allAccounts, search, statusFilter, sortKey, sortDir]);
 
   function toggleColumnSort(key: SortKey) {
     if (sortKey === key) {

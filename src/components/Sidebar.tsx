@@ -46,6 +46,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const onBrief = pathname === "/";
   const onAccounts = pathname === "/accounts";
+  const onSettings = pathname === "/settings";
 
   return (
     <aside className="flex min-h-0 flex-col overflow-hidden border-r border-line px-6 py-[30px]">
@@ -61,9 +62,9 @@ export function Sidebar() {
         <NavLink href="/accounts" active={onAccounts}>
           Accounts
         </NavLink>
-        <span className="nf-type-body py-[7px] font-medium text-ink-3">
+        <NavLink href="/settings" active={onSettings}>
           Settings
-        </span>
+        </NavLink>
       </nav>
       <div className="nf-type-label mt-auto">Demo data</div>
     </aside>

@@ -7,10 +7,9 @@ import {
   getAccountName,
   type Tone,
 } from "@/data/sample";
-import {
-  buildGeneratedDrawerDetail,
-  getAccountById,
-} from "@/data/accounts";
+import { buildGeneratedDrawerDetail, type Account } from "@/data/accounts";
+import { useSettings } from "@/context/SettingsContext";
+import { useComputedAccountById } from "@/lib/useComputedAccounts";
 
 type AccountDrawerProps = {
   accountId: string | null;
@@ -25,12 +24,27 @@ const toneLabels: { id: Tone; label: string }[] = [
   { id: "executive", label: "Executive" },
 ];
 
-function resolveDrawerDetail(accountId: string) {
+function resolveDrawerDetail(
+  accountId: string,
+  signOffName: string,
+  liveAccount?: Account,
+) {
   const stored = accountDrawerDetails[accountId];
-  if (stored) return stored;
-  const account = getAccountById(accountId);
-  if (!account) return undefined;
-  return buildGeneratedDrawerDetail(account);
+  const signoff = signOffName.trim() || "Meera";
+  if (stored) {
+    return {
+      ...stored,
+      risk: liveAccount?.risk ?? stored.risk,
+      drafts: Object.fromEntries(
+        Object.entries(stored.drafts).map(([tone, draft]) => [
+          tone,
+          { ...draft, signoff },
+        ]),
+      ) as typeof stored.drafts,
+    };
+  }
+  if (!liveAccount) return undefined;
+  return buildGeneratedDrawerDetail(liveAccount, signoff);
 }
 
 function AccountDrawerBody({
@@ -40,14 +54,16 @@ function AccountDrawerBody({
   accountId: string;
   reducedMotion: boolean;
 }) {
-  const [tone, setTone] = useState<Tone>("warm");
+  const { defaultTone, signOffName } = useSettings();
+  const [pickedTone, setPickedTone] = useState<Tone | null>(null);
+  const tone = pickedTone ?? defaultTone;
   const [copied, setCopied] = useState(false);
+  const meta = useComputedAccountById(accountId);
 
   const detail = useMemo(
-    () => resolveDrawerDetail(accountId),
-    [accountId],
+    () => resolveDrawerDetail(accountId, signOffName, meta),
+    [accountId, signOffName, meta],
   );
-  const meta = getAccountById(accountId);
   const name = getAccountName(accountId);
   const draft = detail?.drafts[tone];
 
@@ -132,7 +148,7 @@ function AccountDrawerBody({
                   <button
                     key={id}
                     type="button"
-                    onClick={() => setTone(id)}
+                    onClick={() => setPickedTone(id)}
                     className={
                       tone === id
                         ? "nf-type-body font-semibold text-ink underline decoration-ink decoration-[1.5px] underline-offset-[5px]"
@@ -230,6 +246,7 @@ export function AccountDrawer({
               className="flex min-h-0 flex-col"
             >
               <AccountDrawerBody
+                key={accountId}
                 accountId={accountId}
                 reducedMotion={reducedMotion}
               />

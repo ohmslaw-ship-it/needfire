@@ -1,4 +1,8 @@
-import { atRiskAccounts, atRiskTotalLabel } from "@/data/sample";
+"use client";
+
+import { useMemo } from "react";
+import { atRiskAccounts } from "@/data/sample";
+import { useComputedAccounts } from "@/lib/useComputedAccounts";
 
 type AtRiskTableProps = {
   selectedId: string | null;
@@ -6,11 +10,29 @@ type AtRiskTableProps = {
 };
 
 export function AtRiskTable({ selectedId, onSelect }: AtRiskTableProps) {
+  const accounts = useComputedAccounts();
+
+  const { rows, totalLabel } = useMemo(() => {
+    const byId = new Map(accounts.map((a) => [a.id, a]));
+    const rows = atRiskAccounts.map((seed) => {
+      const live = byId.get(seed.id);
+      const risk = live?.risk ?? seed.risk;
+      const status = live?.status ?? (seed.tier === "crit" ? "critical" : "watch");
+      return {
+        ...seed,
+        risk,
+        tier: status === "critical" ? ("crit" as const) : ("watch" as const),
+      };
+    });
+    const flagged = accounts.filter((a) => a.status !== "healthy").length;
+    return { rows, totalLabel: `${flagged} accounts` };
+  }, [accounts]);
+
   return (
     <section className="mt-12">
       <div className="mb-2 flex items-baseline gap-2.5">
         <h2 className="nf-type-section">At risk</h2>
-        <span className="nf-type-secondary">{atRiskTotalLabel}</span>
+        <span className="nf-type-secondary">{totalLabel}</span>
         <span className="nf-type-secondary ml-auto font-semibold text-ink-2">
           View all
         </span>
@@ -40,7 +62,7 @@ export function AtRiskTable({ selectedId, onSelect }: AtRiskTableProps) {
           </tr>
         </thead>
         <tbody>
-          {atRiskAccounts.map((row) => {
+          {rows.map((row) => {
             const selected = selectedId === row.id;
             return (
               <tr

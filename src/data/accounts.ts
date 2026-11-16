@@ -1,6 +1,9 @@
 import type { AccountDrawerDetail, EmailDraft, Tone } from "./sample";
+import { statusFromRisk } from "@/lib/riskSignals";
 
 export type AccountStatus = "critical" | "watch" | "healthy";
+
+export { statusFromRisk };
 
 export type Account = {
   id: string;
@@ -20,12 +23,6 @@ export type Account = {
 };
 
 export const accountsTotalCount = 186;
-
-export function statusFromRisk(risk: number): AccountStatus {
-  if (risk >= 75) return "critical";
-  if (risk >= 50) return "watch";
-  return "healthy";
-}
 
 function account(
   partial: Omit<Account, "status"> & { risk: number },
@@ -178,7 +175,7 @@ export const allAccounts: Account[] = [
     name: "Colearn Edtech",
     arrLakhs: 5.4,
     arr: "₹5.4L",
-    risk: 68,
+    risk: 72,
     reason: "Usage flat 90 days",
     lastActive: "Yesterday",
     lastActiveSort: 1,
@@ -654,6 +651,7 @@ function generatedDrafts(
   account: Account,
   tone: Tone,
   contact: string,
+  signOffName: string,
 ): EmailDraft {
   const renewalLine = `your ${account.renewal} renewal`;
   if (tone === "warm") {
@@ -663,7 +661,7 @@ function generatedDrafts(
         `Hi ${contact}, I noticed ${account.reason.toLowerCase()} on our side and wanted to reach out before things pile up.`,
         `Could we take 20 minutes this week to walk through what's working and line up next steps ahead of ${renewalLine}?`,
       ],
-      signoff: account.owner,
+      signoff: signOffName,
     };
   }
   if (tone === "direct") {
@@ -673,7 +671,7 @@ function generatedDrafts(
         `Hi ${contact} — Ledgerly flagged ${account.reason.toLowerCase()} for ${account.name}. Risk is at ${account.risk} with ${account.seatsUsed} of ${account.seatsTotal} seats active.`,
         `I'd like 20 minutes to address this before ${renewalLine}. Does Thursday work?`,
       ],
-      signoff: account.owner,
+      signoff: signOffName,
     };
   }
   return {
@@ -682,17 +680,19 @@ function generatedDrafts(
       `${contact} — Needfire logged ${account.reason.toLowerCase()} for ${account.name} (${account.arr} ARR).`,
       `Let's align on ownership and a recovery plan ahead of ${renewalLine}.`,
     ],
-    signoff: account.owner,
+    signoff: signOffName,
   };
 }
 
 export function buildGeneratedDrawerDetail(
   account: Account,
+  signOffName?: string,
 ): AccountDrawerDetail {
+  const signoff = signOffName?.trim() || account.owner;
   const drafts: Record<Tone, EmailDraft> = {
-    warm: generatedDrafts(account, "warm", "there"),
-    direct: generatedDrafts(account, "direct", "there"),
-    executive: generatedDrafts(account, "executive", "there"),
+    warm: generatedDrafts(account, "warm", "there", signoff),
+    direct: generatedDrafts(account, "direct", "there", signoff),
+    executive: generatedDrafts(account, "executive", "there", signoff),
   };
   return {
     id: account.id,
