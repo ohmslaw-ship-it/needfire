@@ -1,3 +1,8 @@
+"use client";
+
+import type { ReactNode } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { workspace } from "@/data/sample";
 
 function NeedfireMark() {
@@ -11,28 +16,56 @@ function NeedfireMark() {
   );
 }
 
-export function Sidebar() {
+function NavLink({
+  href,
+  children,
+  active,
+}: {
+  href: string;
+  children: ReactNode;
+  active: boolean;
+}) {
+  if (active) {
+    return (
+      <span className="nf-type-body relative py-[7px] pl-3.5 font-medium text-ink before:absolute before:left-0 before:top-1/2 before:h-3.5 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-ink/35">
+        {children}
+      </span>
+    );
+  }
   return (
-    <aside className="flex min-h-0 flex-col border-r border-line px-6 py-[30px]">
+    <Link
+      href={href}
+      className="nf-type-body py-[7px] font-medium text-ink-3 transition-colors duration-200 hover:text-ink-2"
+    >
+      {children}
+    </Link>
+  );
+}
+
+export function Sidebar() {
+  const pathname = usePathname();
+  const onBrief = pathname === "/";
+  const onAccounts = pathname === "/accounts";
+
+  return (
+    <aside className="flex min-h-0 flex-col overflow-hidden border-r border-line px-6 py-[30px]">
       <div className="font-display flex items-center gap-[9px] text-xl font-normal tracking-[-0.01em] [font-variation-settings:'SOFT'_100,'opsz'_40]">
         <NeedfireMark />
         <span>Needfire</span>
       </div>
-      <div className="mt-11 mb-2.5 text-[12.5px] text-ink-3">
-        {workspace.name}
-      </div>
+      <div className="nf-type-label mt-11 mb-2.5">{workspace.name}</div>
       <nav className="flex flex-col gap-0.5">
-        <span className="relative py-[7px] pl-3.5 text-[15px] font-medium text-ink before:absolute before:left-0 before:top-1/2 before:h-3.5 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-ink/35">
+        <NavLink href="/" active={onBrief}>
           Brief
-        </span>
-        <span className="py-[7px] text-[15px] font-medium text-ink-3">
+        </NavLink>
+        <NavLink href="/accounts" active={onAccounts}>
           Accounts
-        </span>
-        <span className="py-[7px] text-[15px] font-medium text-ink-3">
+        </NavLink>
+        <span className="nf-type-body py-[7px] font-medium text-ink-3">
           Settings
         </span>
       </nav>
-      <div className="mt-auto text-xs text-ink-3">Demo data</div>
+      <div className="nf-type-label mt-auto">Demo data</div>
     </aside>
   );
 }

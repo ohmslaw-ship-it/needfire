@@ -9,36 +9,32 @@ export function AtRiskTable({ selectedId, onSelect }: AtRiskTableProps) {
   return (
     <section className="mt-12">
       <div className="mb-2 flex items-baseline gap-2.5">
-        <h2 className="text-[15px] font-semibold tracking-[-0.005em]">
-          At risk
-        </h2>
-        <span className="text-[13px] text-ink-3">{atRiskTotalLabel}</span>
-        <span className="ml-auto text-[13px] font-semibold text-ink-2">
+        <h2 className="nf-type-section">At risk</h2>
+        <span className="nf-type-secondary">{atRiskTotalLabel}</span>
+        <span className="nf-type-secondary ml-auto font-semibold text-ink-2">
           View all
         </span>
       </div>
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b border-line">
-            <th className="pb-2.5 pt-2.5 text-left text-xs font-medium text-ink-3">
+            <th className="nf-type-label nf-table-cell text-left font-medium">
               Company
             </th>
-            <th className="pb-2.5 pt-2.5 pr-4 text-right text-xs font-medium text-ink-3">
+            <th className="nf-type-label nf-table-cell pr-4 text-right font-medium">
               ARR
             </th>
-            <th className="pb-2.5 pt-2.5 pr-4 text-right text-xs font-medium text-ink-3">
+            <th className="nf-type-label nf-table-cell pr-4 text-right font-medium">
               Risk
             </th>
-            <th className="pb-2.5 pt-2.5 text-xs font-medium text-ink-3">
-              {" "}
-            </th>
-            <th className="pb-2.5 pt-2.5 text-left text-xs font-medium text-ink-3">
+            <th className="nf-type-label nf-table-cell font-medium"> </th>
+            <th className="nf-type-label nf-table-cell text-left font-medium">
               Reason
             </th>
-            <th className="pb-2.5 pt-2.5 text-left text-xs font-medium text-ink-3">
+            <th className="nf-type-label nf-table-cell text-left font-medium">
               Renewal
             </th>
-            <th className="pb-2.5 pt-2.5 text-left text-xs font-medium text-ink-3">
+            <th className="nf-type-label nf-table-cell text-left font-medium">
               Owner
             </th>
           </tr>
@@ -53,7 +49,7 @@ export function AtRiskTable({ selectedId, onSelect }: AtRiskTableProps) {
                 className="group cursor-pointer border-b border-line last:border-b-0"
               >
                 <td
-                  className={`whitespace-nowrap py-[13px] text-sm font-medium transition-colors duration-200 ${
+                  className={`nf-type-body nf-table-cell whitespace-nowrap font-medium transition-colors duration-200 ${
                     selected
                       ? "bg-ink/[0.035] shadow-[-12px_0_0_rgba(22,24,29,0.035)]"
                       : "group-hover:bg-ink/[0.02]"
@@ -62,21 +58,21 @@ export function AtRiskTable({ selectedId, onSelect }: AtRiskTableProps) {
                   {row.name}
                 </td>
                 <td
-                  className={`tabular-nums whitespace-nowrap py-[13px] pr-4 text-right text-sm transition-colors duration-200 ${
+                  className={`nf-type-body nf-table-cell tabular-nums whitespace-nowrap pr-4 text-right transition-colors duration-200 ${
                     selected ? "bg-ink/[0.035]" : "group-hover:bg-ink/[0.02]"
                   }`}
                 >
                   {row.arr}
                 </td>
                 <td
-                  className={`tabular-nums whitespace-nowrap py-[13px] pr-4 text-right text-sm font-semibold transition-colors duration-200 ${
+                  className={`nf-type-body nf-table-cell tabular-nums whitespace-nowrap pr-4 text-right font-semibold transition-colors duration-200 ${
                     selected ? "bg-ink/[0.035]" : "group-hover:bg-ink/[0.02]"
                   }`}
                 >
                   {row.risk}
                 </td>
                 <td
-                  className={`w-[70px] py-[13px] transition-colors duration-200 ${
+                  className={`nf-table-cell w-[70px] transition-colors duration-200 ${
                     selected ? "bg-ink/[0.035]" : "group-hover:bg-ink/[0.02]"
                   }`}
                 >
@@ -92,21 +88,21 @@ export function AtRiskTable({ selectedId, onSelect }: AtRiskTableProps) {
                   </span>
                 </td>
                 <td
-                  className={`whitespace-nowrap py-[13px] text-sm text-ink-3 transition-colors duration-200 ${
+                  className={`nf-type-secondary nf-table-cell whitespace-nowrap transition-colors duration-200 ${
                     selected ? "bg-ink/[0.035]" : "group-hover:bg-ink/[0.02]"
                   }`}
                 >
                   {row.reason}
                 </td>
                 <td
-                  className={`tabular-nums whitespace-nowrap py-[13px] text-sm transition-colors duration-200 ${
+                  className={`nf-type-body nf-table-cell tabular-nums whitespace-nowrap transition-colors duration-200 ${
                     selected ? "bg-ink/[0.035]" : "group-hover:bg-ink/[0.02]"
                   }`}
                 >
                   {row.renewal}
                 </td>
                 <td
-                  className={`whitespace-nowrap py-[13px] text-sm text-ink-3 transition-colors duration-200 ${
+                  className={`nf-type-secondary nf-table-cell whitespace-nowrap transition-colors duration-200 ${
                     selected
                       ? "bg-ink/[0.035] shadow-[12px_0_0_rgba(22,24,29,0.035)]"
                       : "group-hover:bg-ink/[0.02]"

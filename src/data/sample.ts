@@ -1,3 +1,5 @@
+import { getAccountById } from "./accounts";
+
 export type Tone = "warm" | "direct" | "executive";
 
 export type Workspace = {
@@ -249,6 +251,7 @@ export const defaultSelectedAccountId = "northshore-legal";
 
 export function getAccountName(id: string): string {
   const row =
+    getAccountById(id) ??
     atRiskAccounts.find((a) => a.id === id) ??
     cantWaitAccounts.find((a) => a.id === id);
   return row?.name ?? "Account";
