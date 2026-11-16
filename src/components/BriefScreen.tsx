@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { motion } from "motion/react";
 import { defaultSelectedAccountId } from "@/data/sample";
 import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
@@ -29,24 +29,27 @@ export function BriefScreen() {
   const [selectedId, setSelectedId] = useState<string | null>(
     defaultSelectedAccountId,
   );
-  const mainScrollRef = useRef<HTMLElement>(null);
-  const drawerAnchorRef = useRef<HTMLElement>(null);
-  const drawerScrollRef = useRef<HTMLElement>(null);
+  const [mainScroller, setMainScroller] = useState<HTMLElement | null>(null);
+  const [drawerScroller, setDrawerScroller] = useState<HTMLDivElement | null>(
+    null,
+  );
 
   return (
     <div className="relative isolate box-border flex min-h-dvh w-full max-w-none flex-col p-[var(--nf-shell-margin)]">
       <CanvasWash />
-      <ScrollCapsule scrollRef={mainScrollRef} reducedMotion={reducedMotion} />
       <ScrollCapsule
-        scrollRef={drawerScrollRef}
-        anchorRef={drawerAnchorRef}
+        scrollElement={mainScroller}
+        reducedMotion={reducedMotion}
+      />
+      <ScrollCapsule
+        scrollElement={drawerScroller}
         reducedMotion={reducedMotion}
       />
       <Sheet>
         <Sidebar />
         <main
-          ref={mainScrollRef}
-          className="nf-scrollbar-hide min-h-0 min-w-0 overflow-y-auto px-11 pb-11 pt-[38px]"
+          ref={setMainScroller}
+          className="nf-scrollbar-hide relative min-h-0 min-w-0 overflow-y-auto px-11 pb-11 pt-[38px]"
         >
           <motion.div {...rise(reducedMotion, 0)}>
             <BriefHeader />
@@ -68,8 +71,7 @@ export function BriefScreen() {
           accountId={selectedId}
           onClose={() => setSelectedId(null)}
           reducedMotion={reducedMotion}
-          anchorRef={drawerAnchorRef}
-          scrollRef={drawerScrollRef}
+          onScrollNode={setDrawerScroller}
         />
       </Sheet>
     </div>

@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useState,
-  type RefObject,
-} from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   accountDrawerDetails,
@@ -18,8 +13,7 @@ type AccountDrawerProps = {
   accountId: string | null;
   onClose: () => void;
   reducedMotion: boolean;
-  scrollRef: RefObject<HTMLElement | null>;
-  anchorRef: RefObject<HTMLElement | null>;
+  onScrollNode: (node: HTMLDivElement | null) => void;
 };
 
 const toneLabels: { id: Tone; label: string }[] = [
@@ -192,18 +186,14 @@ export function AccountDrawer({
   accountId,
   onClose,
   reducedMotion,
-  scrollRef,
-  anchorRef,
+  onScrollNode,
 }: AccountDrawerProps) {
   const crossFade = reducedMotion
     ? { duration: 0 }
     : { duration: 0.25, ease: [0, 0, 0.2, 1] as const };
 
   return (
-    <aside
-      ref={anchorRef}
-      className="flex min-h-0 flex-col border-l border-line bg-drawer"
-    >
+    <aside className="flex min-h-0 flex-col border-l border-line bg-drawer">
       <div className="flex shrink-0 justify-between px-8 pt-[30px] text-[13px]">
         <span className="text-ink-3">Account</span>
         <button type="button" onClick={onClose} className="text-ink-3">
@@ -212,7 +202,7 @@ export function AccountDrawer({
       </div>
 
       <div
-        ref={scrollRef as RefObject<HTMLDivElement>}
+        ref={onScrollNode}
         className="nf-scrollbar-hide min-h-0 flex-1 overflow-y-auto px-8 pb-[30px]"
       >
         <AnimatePresence mode="wait">

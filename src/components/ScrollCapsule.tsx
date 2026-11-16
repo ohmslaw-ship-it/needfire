@@ -1,9 +1,8 @@
 "use client";
 
 import {
-  motion,
+  useMotionValue,
   useMotionValueEvent,
-  useScroll,
   useSpring,
 } from "motion/react";
 import {
@@ -11,7 +10,6 @@ import {
   useEffect,
   useRef,
   useState,
-  type RefObject,
   type PointerEvent as ReactPointerEvent,
 } from "react";
 
@@ -19,123 +17,148 @@ const MIN_THUMB = 40;
 const MAX_THUMB = 80;
 const CAPSULE_W = 4;
 const CAPSULE_W_HOVER = 6;
-const FADE_OUT_MS = 1000;
+const GUTTER = 6;
+const FADE_OUT_MS = 800;
 
 type Metrics = {
   scrollable: boolean;
   thumb: number;
   trackHeight: number;
   trackTop: number;
+  trackRight: number;
 };
 
-export type ScrollCapsuleProps = {
-  scrollRef: RefObject<HTMLElement | null>;
-  reducedMotion?: boolean;
-  /** Pin horizontally to this element’s right gutter (e.g. drawer column). */
-  anchorRef?: RefObject<HTMLElement | null>;
-};
-
-function measureScrollEl(el: HTMLElement): Omit<Metrics, "scrollable"> & { scrollable: boolean } {
+function measure(el: HTMLElement): Metrics {
   const trackHeight = el.clientHeight;
-  const thumb = Math.min(
-    MAX_THUMB,
-    Math.max(MIN_THUMB, (trackHeight * trackHeight) / Math.max(el.scrollHeight, 1)),
-  );
   const scrollable = el.scrollHeight > el.clientHeight + 1;
+  const thumb = scrollable
+    ? Math.min(
+        MAX_THUMB,
+        Math.max(MIN_THUMB, (trackHeight / el.scrollHeight) * trackHeight),
+      )
+    : MIN_THUMB;
   const rect = el.getBoundingClientRect();
-  return { scrollable, thumb, trackHeight, trackTop: rect.top };
+  return {
+    scrollable,
+    thumb,
+    trackHeight,
+    trackTop: rect.top,
+    trackRight: rect.right,
+  };
 }
 
-export function ScrollCapsule({
-  scrollRef,
-  reducedMotion = false,
-  anchorRef,
-}: ScrollCapsuleProps) {
-  const { scrollYProgress } = useScroll({
-    container: scrollRef,
-  });
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: reducedMotion ? 1000 : 380,
-    damping: reducedMotion ? 100 : 36,
-    mass: 0.35,
-  });
+function scrollProgress(el: HTMLElement): number {
+  const max = el.scrollHeight - el.clientHeight;
+  if (max <= 0) return 0;
+  return el.scrollTop / max;
+}
 
+export type ScrollCapsuleProps = {
+  scrollElement: HTMLElement | null;
+  reducedMotion?: boolean;
+};
+
+export function ScrollCapsule({
+  scrollElement,
+  reducedMotion = false,
+}: ScrollCapsuleProps) {
   const [metrics, setMetrics] = useState<Metrics>({
     scrollable: false,
     thumb: MIN_THUMB,
     trackHeight: 0,
     trackTop: 0,
+    trackRight: 0,
   });
-  const [progress, setProgress] = useState(0);
+  const [thumbTop, setThumbTop] = useState(0);
   const [visible, setVisible] = useState(false);
   const [hovered, setHovered] = useState(false);
-  const [rightOffset, setRightOffset] = useState(6);
   const fadeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
   );
   const dragRef = useRef<{ startY: number; startScroll: number } | null>(null);
+  const scrollNodeRef = useRef<HTMLElement | null>(null);
 
-  const bumpVisibility = useCallback(() => {
-    setVisible(true);
+  const progressMv = useMotionValue(0);
+  const smoothProgress = useSpring(progressMv, {
+    stiffness: reducedMotion ? 900 : 420,
+    damping: reducedMotion ? 90 : 40,
+    mass: 0.28,
+  });
+
+  const syncThumbPosition = useCallback(
+    (el: HTMLElement, progress: number, m: Metrics) => {
+      const travel = Math.max(m.trackHeight - m.thumb, 0);
+      setThumbTop(m.trackTop + progress * travel);
+      progressMv.set(progress);
+    },
+    [progressMv],
+  );
+
+  const scheduleFadeOut = useCallback(() => {
     if (fadeTimer.current) clearTimeout(fadeTimer.current);
-    if (!hovered) {
-      fadeTimer.current = setTimeout(() => setVisible(false), FADE_OUT_MS);
-    }
+    if (hovered || dragRef.current) return;
+    fadeTimer.current = setTimeout(() => setVisible(false), FADE_OUT_MS);
   }, [hovered]);
 
-  const refresh = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const next = measureScrollEl(el);
-    setMetrics((m) => ({ ...m, ...next }));
+  const bumpVisible = useCallback(() => {
+    setVisible(true);
+    scheduleFadeOut();
+  }, [scheduleFadeOut]);
 
-    if (anchorRef?.current) {
-      const anchorRect = anchorRef.current.getBoundingClientRect();
-      setRightOffset(window.innerWidth - anchorRect.right + 6);
-    } else {
-      setRightOffset(6);
-    }
-  }, [scrollRef, anchorRef]);
+  useMotionValueEvent(smoothProgress, "change", (p) => {
+    if (!scrollElement || reducedMotion) return;
+    const m = measure(scrollElement);
+    const travel = Math.max(m.trackHeight - m.thumb, 0);
+    setThumbTop(m.trackTop + p * travel);
+    setMetrics(m);
+  });
 
   useEffect(() => {
-    refresh();
-    const el = scrollRef.current;
+    scrollNodeRef.current = scrollElement;
+  }, [scrollElement]);
+
+  useEffect(() => {
+    const el = scrollElement;
     if (!el) return;
 
-    const onScroll = () => {
-      bumpVisibility();
-      refresh();
+    const update = () => {
+      const m = measure(el);
+      setMetrics(m);
+      const p = scrollProgress(el);
+      if (reducedMotion) {
+        syncThumbPosition(el, p, m);
+      } else {
+        progressMv.set(p);
+        const travel = Math.max(m.trackHeight - m.thumb, 0);
+        setThumbTop(m.trackTop + p * travel);
+      }
     };
 
-    el.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", refresh);
-    window.addEventListener("scroll", refresh, { passive: true });
+    const onScroll = () => {
+      bumpVisible();
+      update();
+    };
 
-    const ro = new ResizeObserver(refresh);
+    update();
+    el.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", update);
+
+    const ro = new ResizeObserver(update);
     ro.observe(el);
-    if (anchorRef?.current) ro.observe(anchorRef.current);
 
     return () => {
       el.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", refresh);
-      window.removeEventListener("scroll", refresh);
+      window.removeEventListener("resize", update);
       ro.disconnect();
       if (fadeTimer.current) clearTimeout(fadeTimer.current);
     };
-  }, [scrollRef, anchorRef, bumpVisibility, refresh]);
-
-  useMotionValueEvent(smoothProgress, "change", (v) => {
-    setProgress(v);
-    bumpVisibility();
-  });
-
-  const thumbTravel = Math.max(metrics.trackHeight - metrics.thumb, 0);
-  const thumbTop = metrics.trackTop + progress * thumbTravel;
+  }, [scrollElement, bumpVisible, progressMv, reducedMotion, syncThumbPosition]);
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    const el = scrollRef.current;
+    const el = scrollNodeRef.current;
     if (!el || !metrics.scrollable) return;
     event.preventDefault();
+    event.stopPropagation();
     event.currentTarget.setPointerCapture(event.pointerId);
     dragRef.current = { startY: event.clientY, startScroll: el.scrollTop };
     setVisible(true);
@@ -143,14 +166,13 @@ export function ScrollCapsule({
   };
 
   const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
-    const el = scrollRef.current;
+    const el = scrollNodeRef.current;
     const drag = dragRef.current;
     if (!el || !drag) return;
     const scrollable = el.scrollHeight - el.clientHeight;
     const travel = Math.max(metrics.trackHeight - metrics.thumb, 1);
     const deltaY = event.clientY - drag.startY;
-    const ratio = scrollable / travel;
-    el.scrollTop = drag.startScroll + deltaY * ratio;
+    el.scrollTop = drag.startScroll + (deltaY / travel) * scrollable;
   };
 
   const endDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -159,16 +181,17 @@ export function ScrollCapsule({
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
-    fadeTimer.current = setTimeout(() => setVisible(false), FADE_OUT_MS);
+    scheduleFadeOut();
   };
 
-  if (!metrics.scrollable) return null;
+  if (!scrollElement || !metrics.scrollable) return null;
 
-  const opacity = visible || hovered ? 1 : 0;
   const width = hovered ? CAPSULE_W_HOVER : CAPSULE_W;
+  const left = metrics.trackRight - GUTTER - width;
+  const opacity = visible || hovered ? 1 : 0;
 
   return (
-    <motion.div
+    <div
       role="presentation"
       aria-hidden
       onPointerDown={onPointerDown}
@@ -182,19 +205,17 @@ export function ScrollCapsule({
       }}
       onMouseLeave={() => {
         setHovered(false);
-        fadeTimer.current = setTimeout(() => setVisible(false), FADE_OUT_MS);
+        scheduleFadeOut();
       }}
-      className="fixed z-[60] cursor-grab touch-none rounded-full bg-ink/25 shadow-[0_2px_8px_rgba(22,24,29,0.12)] backdrop-blur-[6px] active:cursor-grabbing"
+      className="fixed z-[60] cursor-grab touch-none rounded-full bg-[rgba(22,24,29,0.22)] active:cursor-grabbing"
       style={{
-        right: rightOffset,
+        left,
         top: thumbTop,
         width,
         height: metrics.thumb,
         pointerEvents: "auto",
-        opacity: reducedMotion ? (visible || hovered ? 1 : 0.35) : opacity,
-        transition: reducedMotion
-          ? "opacity 0.15s linear, width 0.15s linear"
-          : "opacity 0.35s ease-out, width 0.2s ease-out",
+        opacity: reducedMotion ? (visible || hovered ? 1 : 0) : opacity,
+        transition: "opacity 0.25s ease-out, width 0.2s ease-out",
       }}
     />
   );

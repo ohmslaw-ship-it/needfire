@@ -13,7 +13,7 @@ function NeedfireMark() {
 
 export function Sidebar() {
   return (
-    <aside className="flex flex-col border-r border-line px-6 py-[30px]">
+    <aside className="flex min-h-0 flex-col border-r border-line px-6 py-[30px]">
       <div className="font-display flex items-center gap-[9px] text-xl font-normal tracking-[-0.01em] [font-variation-settings:'SOFT'_100,'opsz'_40]">
         <NeedfireMark />
         <span>Needfire</span>
