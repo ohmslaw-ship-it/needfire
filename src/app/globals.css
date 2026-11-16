@@ -2,18 +2,20 @@
 
 :root {
   --line: rgba(22, 24, 29, 0.09);
-  --nf-shell-margin: 28px;
+  --nf-shell-margin: clamp(16px, 2vw, 32px);
   --nf-shell-radius: 28px;
+  --nf-canvas: #eceae6;
+  --nf-sheet-border: rgba(22, 24, 29, 0.06);
 }
 
 @theme inline {
-  --color-paper: #eef0f2;
+  --color-paper: #eceae6;
   --color-ink: #16181d;
   --color-ink-2: #3c4048;
   --color-ink-3: #585c65;
   --color-line: var(--line);
   --color-ember: #d9461f;
-  --color-sheet: rgba(250, 249, 247, 0.86);
+  --color-sheet: #faf9f7;
   --color-drawer: rgba(255, 255, 255, 0.72);
   --color-card: #ffffff;
   --font-display: var(--font-display), ui-serif, Georgia, serif;
@@ -21,13 +23,55 @@
 }
 
 @layer base {
-  html {
-    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
   }
 
+  html,
   body {
-    @apply bg-paper text-ink text-sm leading-normal antialiased;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    max-width: none;
+    min-height: 100%;
+    overflow-x: clip;
+    scrollbar-width: none;
+    background: #eceae6;
+    color: #16181d;
     font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;
+  }
+
+  img,
+  video {
+    max-width: none;
+  }
+
+  .nf-scrollbar-hide {
+    scrollbar-width: none;
+  }
+
+  .nf-scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nf-email-preview {
+    @apply rounded-[14px] bg-card text-[13.5px] leading-[1.6] text-ink-2 shadow-[0_1px_2px_rgba(20,24,30,0.05)];
+    padding: 16px 18px;
+  }
+
+  .nf-email-preview p + p {
+    margin-top: 8px;
   }
 
   .font-display {

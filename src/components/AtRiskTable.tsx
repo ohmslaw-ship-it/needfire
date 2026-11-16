@@ -50,33 +50,35 @@ export function AtRiskTable({ selectedId, onSelect }: AtRiskTableProps) {
               <tr
                 key={row.id}
                 onClick={() => onSelect(row.id)}
-                className="cursor-pointer border-b border-line last:border-b-0"
+                className="group cursor-pointer border-b border-line last:border-b-0"
               >
                 <td
-                  className={`whitespace-nowrap py-[13px] text-sm font-medium ${
+                  className={`whitespace-nowrap py-[13px] text-sm font-medium transition-colors duration-200 ${
                     selected
-                      ? "bg-[rgba(22,24,29,0.035)] shadow-[-12px_0_0_rgba(22,24,29,0.035)]"
-                      : ""
+                      ? "bg-ink/[0.035] shadow-[-12px_0_0_rgba(22,24,29,0.035)]"
+                      : "group-hover:bg-ink/[0.02]"
                   }`}
                 >
                   {row.name}
                 </td>
                 <td
-                  className={`tabular-nums whitespace-nowrap py-[13px] pr-4 text-right text-sm ${
-                    selected ? "bg-[rgba(22,24,29,0.035)]" : ""
+                  className={`tabular-nums whitespace-nowrap py-[13px] pr-4 text-right text-sm transition-colors duration-200 ${
+                    selected ? "bg-ink/[0.035]" : "group-hover:bg-ink/[0.02]"
                   }`}
                 >
                   {row.arr}
                 </td>
                 <td
-                  className={`tabular-nums whitespace-nowrap py-[13px] pr-4 text-right text-sm font-semibold ${
-                    selected ? "bg-[rgba(22,24,29,0.035)]" : ""
+                  className={`tabular-nums whitespace-nowrap py-[13px] pr-4 text-right text-sm font-semibold transition-colors duration-200 ${
+                    selected ? "bg-ink/[0.035]" : "group-hover:bg-ink/[0.02]"
                   }`}
                 >
                   {row.risk}
                 </td>
                 <td
-                  className={`w-[70px] py-[13px] ${selected ? "bg-[rgba(22,24,29,0.035)]" : ""}`}
+                  className={`w-[70px] py-[13px] transition-colors duration-200 ${
+                    selected ? "bg-ink/[0.035]" : "group-hover:bg-ink/[0.02]"
+                  }`}
                 >
                   <span className="block h-[3px] w-14 rounded-sm bg-[rgba(22,24,29,0.08)]">
                     <i
@@ -90,24 +92,24 @@ export function AtRiskTable({ selectedId, onSelect }: AtRiskTableProps) {
                   </span>
                 </td>
                 <td
-                  className={`whitespace-nowrap py-[13px] text-sm text-ink-3 ${
-                    selected ? "bg-[rgba(22,24,29,0.035)]" : ""
+                  className={`whitespace-nowrap py-[13px] text-sm text-ink-3 transition-colors duration-200 ${
+                    selected ? "bg-ink/[0.035]" : "group-hover:bg-ink/[0.02]"
                   }`}
                 >
                   {row.reason}
                 </td>
                 <td
-                  className={`tabular-nums whitespace-nowrap py-[13px] text-sm ${
-                    selected ? "bg-[rgba(22,24,29,0.035)]" : ""
+                  className={`tabular-nums whitespace-nowrap py-[13px] text-sm transition-colors duration-200 ${
+                    selected ? "bg-ink/[0.035]" : "group-hover:bg-ink/[0.02]"
                   }`}
                 >
                   {row.renewal}
                 </td>
                 <td
-                  className={`whitespace-nowrap py-[13px] text-sm text-ink-3 ${
+                  className={`whitespace-nowrap py-[13px] text-sm text-ink-3 transition-colors duration-200 ${
                     selected
-                      ? "bg-[rgba(22,24,29,0.035)] shadow-[12px_0_0_rgba(22,24,29,0.035)]"
-                      : ""
+                      ? "bg-ink/[0.035] shadow-[12px_0_0_rgba(22,24,29,0.035)]"
+                      : "group-hover:bg-ink/[0.02]"
                   }`}
                 >
                   {row.owner}

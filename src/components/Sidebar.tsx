@@ -22,7 +22,9 @@ export function Sidebar() {
         {workspace.name}
       </div>
       <nav className="flex flex-col gap-0.5">
-        <span className="py-[7px] text-[15px] font-medium text-ink">Brief</span>
+        <span className="relative py-[7px] pl-3.5 text-[15px] font-medium text-ink before:absolute before:left-0 before:top-1/2 before:h-3.5 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-ink/35">
+          Brief
+        </span>
         <span className="py-[7px] text-[15px] font-medium text-ink-3">
           Accounts
         </span>

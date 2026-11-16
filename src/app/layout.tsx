@@ -9,16 +9,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    /*
-      Background photo: “Rocky ride.” by Simon Berger (simon from Austria), CC0 1.0,
-      via Wikimedia Commons / Flickr:
-      https://commons.wikimedia.org/wiki/File:Rocky_ride._-_Flickr_-_simon_berger.jpg
-    */
-    <html
-      lang="en"
-      className={`${fontDisplay.variable} ${fontBody.variable} h-full tabular-nums`}
-    >
-      <body className="min-h-full">{children}</body>
+    <html lang="en" className={`${fontDisplay.variable} ${fontBody.variable}`}>
+      <body>{children}</body>
     </html>
   );
 }

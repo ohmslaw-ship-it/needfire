@@ -1,30 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import { motion } from "motion/react";
 import { defaultSelectedAccountId } from "@/data/sample";
+import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 import { AccountDrawer } from "./AccountDrawer";
 import { AtRiskTable } from "./AtRiskTable";
-import { Background } from "./Background";
 import { BriefHeader } from "./BriefHeader";
+import { CanvasWash } from "./CanvasWash";
 import { CantWaitSection } from "./CantWaitSection";
 import { KpiRow } from "./KpiRow";
+import { ScrollCapsule } from "./ScrollCapsule";
 import { Sheet } from "./Sheet";
 import { Sidebar } from "./Sidebar";
-
-function usePrefersReducedMotion() {
-  const [reduced, setReduced] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setReduced(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-
-  return reduced;
-}
 
 function rise(reduced: boolean, delay: number) {
   return reduced
@@ -41,35 +29,49 @@ export function BriefScreen() {
   const [selectedId, setSelectedId] = useState<string | null>(
     defaultSelectedAccountId,
   );
+  const mainScrollRef = useRef<HTMLElement>(null);
+  const drawerAnchorRef = useRef<HTMLElement>(null);
+  const drawerScrollRef = useRef<HTMLElement>(null);
 
   return (
-  <>
-    <Background />
-    <Sheet>
-      <Sidebar />
-      <main className="min-w-0 px-11 pb-11 pt-[38px]">
-        <motion.div {...rise(reducedMotion, 0)}>
-          <BriefHeader />
-        </motion.div>
-        <motion.div {...rise(reducedMotion, 0.2)}>
-          <KpiRow />
-        </motion.div>
-        <motion.div {...rise(reducedMotion, 0.4)}>
-          <CantWaitSection
-            selectedId={selectedId}
-            onSelect={setSelectedId}
-          />
-        </motion.div>
-        <motion.div {...rise(reducedMotion, 0.6)}>
-          <AtRiskTable selectedId={selectedId} onSelect={setSelectedId} />
-        </motion.div>
-      </main>
-      <AccountDrawer
-        accountId={selectedId}
-        onClose={() => setSelectedId(null)}
+    <div className="relative isolate box-border flex min-h-dvh w-full max-w-none flex-col p-[var(--nf-shell-margin)]">
+      <CanvasWash />
+      <ScrollCapsule scrollRef={mainScrollRef} reducedMotion={reducedMotion} />
+      <ScrollCapsule
+        scrollRef={drawerScrollRef}
+        anchorRef={drawerAnchorRef}
         reducedMotion={reducedMotion}
       />
-    </Sheet>
-  </>
+      <Sheet>
+        <Sidebar />
+        <main
+          ref={mainScrollRef}
+          className="nf-scrollbar-hide min-h-0 min-w-0 overflow-y-auto px-11 pb-11 pt-[38px]"
+        >
+          <motion.div {...rise(reducedMotion, 0)}>
+            <BriefHeader />
+          </motion.div>
+          <motion.div {...rise(reducedMotion, 0.2)}>
+            <KpiRow />
+          </motion.div>
+          <motion.div {...rise(reducedMotion, 0.4)}>
+            <CantWaitSection
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+            />
+          </motion.div>
+          <motion.div {...rise(reducedMotion, 0.6)}>
+            <AtRiskTable selectedId={selectedId} onSelect={setSelectedId} />
+          </motion.div>
+        </main>
+        <AccountDrawer
+          accountId={selectedId}
+          onClose={() => setSelectedId(null)}
+          reducedMotion={reducedMotion}
+          anchorRef={drawerAnchorRef}
+          scrollRef={drawerScrollRef}
+        />
+      </Sheet>
+    </div>
   );
 }

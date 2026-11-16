@@ -18,7 +18,7 @@ export function CantWaitCard({ account, selected, onSelect }: CantWaitCardProps)
           onSelect();
         }
       }}
-      className="cursor-pointer rounded-[18px] bg-card p-5 pb-[18px] shadow-[0_1px_2px_rgba(20,24,30,0.05),0_8px_24px_-16px_rgba(20,24,30,0.18)]"
+      className="cursor-pointer rounded-[18px] bg-card p-5 pb-[18px] shadow-[0_1px_2px_rgba(20,24,30,0.05),0_8px_24px_-16px_rgba(20,24,30,0.18)] transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(20,24,30,0.08),0_12px_28px_-12px_rgba(20,24,30,0.22)]"
     >
       <div className="flex items-baseline justify-between gap-2">
         <h3 className="text-[15.5px] font-semibold">{account.name}</h3>

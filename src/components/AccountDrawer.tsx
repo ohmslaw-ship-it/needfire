@@ -1,6 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useState,
+  type RefObject,
+} from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   accountDrawerDetails,
@@ -13,6 +18,8 @@ type AccountDrawerProps = {
   accountId: string | null;
   onClose: () => void;
   reducedMotion: boolean;
+  scrollRef: RefObject<HTMLElement | null>;
+  anchorRef: RefObject<HTMLElement | null>;
 };
 
 const toneLabels: { id: Tone; label: string }[] = [
@@ -148,7 +155,7 @@ function AccountDrawerBody({
                   transition={crossFade}
                   className="flex flex-1 flex-col"
                 >
-                  <div className="rounded-[14px] bg-card p-[16px_18px] text-[13.5px] leading-[1.6] text-ink-2 shadow-[0_1px_2px_rgba(20,24,30,0.05)]">
+                  <div className="nf-email-preview">
                     <div className="mb-1.5 font-semibold text-ink">
                       {draft.subject}
                     </div>
@@ -185,48 +192,58 @@ export function AccountDrawer({
   accountId,
   onClose,
   reducedMotion,
+  scrollRef,
+  anchorRef,
 }: AccountDrawerProps) {
   const crossFade = reducedMotion
     ? { duration: 0 }
     : { duration: 0.25, ease: [0, 0, 0.2, 1] as const };
 
   return (
-    <aside className="flex flex-col border-l border-line bg-drawer px-8 py-[30px]">
-      <div className="flex justify-between text-[13px]">
+    <aside
+      ref={anchorRef}
+      className="flex min-h-0 flex-col border-l border-line bg-drawer"
+    >
+      <div className="flex shrink-0 justify-between px-8 pt-[30px] text-[13px]">
         <span className="text-ink-3">Account</span>
         <button type="button" onClick={onClose} className="text-ink-3">
           Close
         </button>
       </div>
 
-      <AnimatePresence mode="wait">
-        {!accountId ? (
-          <motion.div
-            key="empty"
-            initial={reducedMotion ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={reducedMotion ? undefined : { opacity: 0 }}
-            transition={crossFade}
-            className="mt-6 text-sm text-ink-3"
-          >
-            Select an account from the table or Can&apos;t wait cards.
-          </motion.div>
-        ) : (
-          <motion.div
-            key={accountId}
-            initial={reducedMotion ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={reducedMotion ? undefined : { opacity: 0 }}
-            transition={crossFade}
-            className="flex min-h-0 flex-1 flex-col"
-          >
-            <AccountDrawerBody
-              accountId={accountId}
-              reducedMotion={reducedMotion}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <div
+        ref={scrollRef as RefObject<HTMLDivElement>}
+        className="nf-scrollbar-hide min-h-0 flex-1 overflow-y-auto px-8 pb-[30px]"
+      >
+        <AnimatePresence mode="wait">
+          {!accountId ? (
+            <motion.div
+              key="empty"
+              initial={reducedMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={reducedMotion ? undefined : { opacity: 0 }}
+              transition={crossFade}
+              className="mt-6 text-sm text-ink-3"
+            >
+              Select an account from the table or Can&apos;t wait cards.
+            </motion.div>
+          ) : (
+            <motion.div
+              key={accountId}
+              initial={reducedMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={reducedMotion ? undefined : { opacity: 0 }}
+              transition={crossFade}
+              className="flex min-h-0 flex-col"
+            >
+              <AccountDrawerBody
+                accountId={accountId}
+                reducedMotion={reducedMotion}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </aside>
   );
 }
