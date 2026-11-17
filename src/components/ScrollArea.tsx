@@ -9,8 +9,10 @@ import {
   type ReactNode,
 } from "react";
 
-const THUMB_COLOR = "rgba(22,24,29,0.22)";
+const THUMB_MIN = 32;
+const THUMB_COLOR = "rgba(22,24,29,0.18)";
 const FADE_OUT_MS = 800;
+const FADE_IN_MS = 150;
 
 type ScrollAreaProps = {
   children: ReactNode;
@@ -35,7 +37,10 @@ export function ScrollArea({ children, className }: ScrollAreaProps) {
     if (!el) return;
     const { clientHeight, scrollHeight, scrollTop } = el;
     const overflow = scrollHeight > clientHeight + 1;
-    const height = overflow ? (clientHeight / scrollHeight) * clientHeight : 0;
+    const rawHeight = overflow
+      ? (clientHeight / scrollHeight) * clientHeight
+      : 0;
+    const height = overflow ? Math.max(THUMB_MIN, rawHeight) : 0;
     const maxScroll = scrollHeight - clientHeight;
     const travel = Math.max(clientHeight - height, 0);
     const top = maxScroll > 0 ? (scrollTop / maxScroll) * travel : 0;
@@ -109,7 +114,9 @@ export function ScrollArea({ children, className }: ScrollAreaProps) {
     const drag = dragRef.current;
     if (!el || !drag) return;
     const maxScroll = el.scrollHeight - el.clientHeight;
-    const thumbHeight = (el.clientHeight / el.scrollHeight) * el.clientHeight;
+    const rawThumb =
+      (el.clientHeight / el.scrollHeight) * el.clientHeight;
+    const thumbHeight = Math.max(THUMB_MIN, rawThumb);
     const travel = Math.max(el.clientHeight - thumbHeight, 1);
     const delta = event.clientY - drag.y;
     el.scrollTop = drag.scroll + (delta / travel) * maxScroll;
@@ -124,8 +131,21 @@ export function ScrollArea({ children, className }: ScrollAreaProps) {
     scheduleFadeOut();
   };
 
+  const thumbShown = visible || hovered;
+
   return (
-    <div className={`relative flex min-h-0 flex-1 flex-col ${className ?? ""}`}>
+    <div
+      className={`relative flex min-h-0 flex-1 flex-col ${className ?? ""}`}
+      onMouseEnter={() => {
+        setHovered(true);
+        setVisible(true);
+        if (fadeTimer.current) window.clearTimeout(fadeTimer.current);
+      }}
+      onMouseLeave={() => {
+        setHovered(false);
+        scheduleFadeOut();
+      }}
+    >
       <div
         ref={scrollerRef}
         className="nf-scrollbar-hide min-h-0 flex-1 overflow-y-auto overscroll-contain"
@@ -139,24 +159,14 @@ export function ScrollArea({ children, className }: ScrollAreaProps) {
           onPointerMove={onPointerMove}
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
-          onMouseEnter={() => {
-            setHovered(true);
-            setVisible(true);
-            if (fadeTimer.current) window.clearTimeout(fadeTimer.current);
-          }}
-          onMouseLeave={() => {
-            setHovered(false);
-            scheduleFadeOut();
-          }}
-          className="absolute top-0 z-20 cursor-grab touch-none rounded-full active:cursor-grabbing"
+          className="absolute top-0 z-20 w-1 cursor-grab touch-none rounded-full active:cursor-grabbing"
           style={{
-            right: 3,
-            width: hovered ? 6 : 4,
+            right: 6,
             height: geom.height,
             transform: `translateY(${geom.top}px)`,
             background: THUMB_COLOR,
-            opacity: visible || hovered ? 1 : 0,
-            transition: "opacity 200ms ease, width 180ms ease",
+            opacity: thumbShown ? 1 : 0,
+            transition: `opacity ${thumbShown ? FADE_IN_MS : FADE_OUT_MS}ms ease`,
           }}
         />
       ) : null}

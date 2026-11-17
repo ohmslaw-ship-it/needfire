@@ -254,7 +254,18 @@ export function AccountsScreen() {
             No accounts match your search.
           </p>
         ) : (
-          <table className="w-full border-collapse">
+          <table className="nf-table-fixed border-collapse">
+            <colgroup>
+              <col style={{ width: "22%" }} />
+              <col style={{ width: "9%" }} />
+              <col style={{ width: "5%" }} />
+              <col style={{ width: "7%" }} />
+              <col style={{ width: "10%" }} />
+              <col style={{ width: "25%" }} />
+              <col style={{ width: "9%" }} />
+              <col style={{ width: "8%" }} />
+              <col style={{ width: "5%" }} />
+            </colgroup>
             <thead className="nf-table-head">
               <tr>
                 <th className="nf-type-label nf-table-cell text-left font-medium">
@@ -293,14 +304,14 @@ export function AccountsScreen() {
                   <SortArrow active={sortKey === "risk"} dir={sortDir} />
                 </th>
                 <th className="nf-type-label nf-table-cell font-medium"> </th>
-                <th className="nf-type-label nf-table-cell text-left font-medium">
+                <th className="nf-type-label nf-table-cell nf-table-cell-inset text-left font-medium">
                   Status
                 </th>
                 <th className="nf-type-label nf-table-cell text-left font-medium">
                   Reason
                 </th>
                 <th
-                  className={thClass("lastActive")}
+                  className={`${thClass("lastActive")} nf-table-cell-inset`}
                   tabIndex={0}
                   aria-sort={
                     sortKey === "lastActive"
@@ -316,7 +327,7 @@ export function AccountsScreen() {
                   <SortArrow active={sortKey === "lastActive"} dir={sortDir} />
                 </th>
                 <th
-                  className={thClass("renewal")}
+                  className={`${thClass("renewal")} nf-table-cell-inset`}
                   tabIndex={0}
                   aria-sort={
                     sortKey === "renewal"
@@ -370,24 +381,27 @@ export function AccountsScreen() {
                     >
                       {row.risk}
                     </td>
-                    <td className={`w-[70px] ${tableCellClass(selected)}`}>
+                    <td className={tableCellClass(selected)}>
                       <RiskBar risk={row.risk} status={row.status} />
                     </td>
-                    <td className={`whitespace-nowrap ${tableCellClass(selected)}`}>
+                    <td
+                      className={`nf-table-cell-inset whitespace-nowrap ${tableCellClass(selected)}`}
+                    >
                       <StatusCell status={row.status} />
                     </td>
                     <td
-                      className={`nf-type-body whitespace-nowrap text-ink-3 ${tableCellClass(selected)}`}
+                      className={`nf-type-body nf-table-cell-reason text-ink-3 ${tableCellClass(selected)}`}
+                      title={row.reason}
                     >
                       {row.reason}
                     </td>
                     <td
-                      className={`nf-type-body tabular-nums whitespace-nowrap text-ink-3 ${tableCellClass(selected)}`}
+                      className={`nf-type-body nf-table-cell-inset tabular-nums whitespace-nowrap text-ink-3 ${tableCellClass(selected)}`}
                     >
                       {row.lastActive}
                     </td>
                     <td
-                      className={`nf-type-body tabular-nums whitespace-nowrap ${tableCellClass(selected)}`}
+                      className={`nf-type-body nf-table-cell-inset tabular-nums whitespace-nowrap ${tableCellClass(selected)}`}
                     >
                       {row.renewal}
                     </td>

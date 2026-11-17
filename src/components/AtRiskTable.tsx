@@ -42,7 +42,16 @@ export function AtRiskTable({ selectedId, onSelect }: AtRiskTableProps) {
           View all
         </span>
       </div>
-      <table className="w-full border-collapse">
+      <table className="nf-table-fixed border-collapse">
+        <colgroup>
+          <col style={{ width: "28%" }} />
+          <col style={{ width: "10%" }} />
+          <col style={{ width: "5%" }} />
+          <col style={{ width: "7%" }} />
+          <col style={{ width: "35%" }} />
+          <col style={{ width: "10%" }} />
+          <col style={{ width: "5%" }} />
+        </colgroup>
         <thead>
           <tr className="border-b border-line">
             <th className="nf-type-label nf-table-cell text-left font-medium">
@@ -58,7 +67,7 @@ export function AtRiskTable({ selectedId, onSelect }: AtRiskTableProps) {
             <th className="nf-type-label nf-table-cell text-left font-medium">
               Reason
             </th>
-            <th className="nf-type-label nf-table-cell text-left font-medium">
+            <th className="nf-type-label nf-table-cell nf-table-cell-inset text-left font-medium">
               Renewal
             </th>
             <th className="nf-type-label nf-table-cell text-left font-medium">
@@ -99,16 +108,17 @@ export function AtRiskTable({ selectedId, onSelect }: AtRiskTableProps) {
                 >
                   {row.risk}
                 </td>
-                <td className={`w-[70px] ${tableCellClass(selected)}`}>
+                <td className={tableCellClass(selected)}>
                   <RiskBar risk={row.risk} status={row.status} />
                 </td>
                 <td
-                  className={`nf-type-body whitespace-nowrap text-ink-3 ${tableCellClass(selected)}`}
+                  className={`nf-type-body nf-table-cell-reason text-ink-3 ${tableCellClass(selected)}`}
+                  title={row.reason}
                 >
                   {row.reason}
                 </td>
                 <td
-                  className={`nf-type-body tabular-nums whitespace-nowrap ${tableCellClass(selected)}`}
+                  className={`nf-type-body nf-table-cell-inset tabular-nums whitespace-nowrap ${tableCellClass(selected)}`}
                 >
                   {row.renewal}
                 </td>
