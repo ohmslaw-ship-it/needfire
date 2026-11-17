@@ -7,17 +7,62 @@
   --nf-canvas: #eceae6;
   --nf-sheet-border: rgba(22, 24, 29, 0.06);
 
-  /* Type scale */
-  --nf-size-page-title: 40px;
-  --nf-size-drawer-title: 28px;
-  --nf-size-kpi: 36px;
-  --nf-size-section: 15px;
-  --nf-size-body: 14px;
-  --nf-size-secondary: 13px;
-  --nf-size-label: 12px;
+  /*
+    Type and spacing hold their current size through 1680px, then ease up
+    about 8% by 1920px. Body never drops below 14px.
+  */
+  --nf-size-page-title: clamp(
+    40px,
+    calc(40px + 3.2px * (100vw - 1680px) / 240px),
+    43.2px
+  );
+  --nf-size-drawer-title: clamp(
+    28px,
+    calc(28px + 2.24px * (100vw - 1680px) / 240px),
+    30.24px
+  );
+  --nf-size-kpi: clamp(
+    36px,
+    calc(36px + 2.88px * (100vw - 1680px) / 240px),
+    38.88px
+  );
+  --nf-size-section: clamp(
+    15px,
+    calc(15px + 1.2px * (100vw - 1680px) / 240px),
+    16.2px
+  );
+  --nf-size-body: clamp(
+    14px,
+    calc(14px + 1.12px * (100vw - 1680px) / 240px),
+    15.12px
+  );
+  --nf-size-secondary: clamp(
+    13px,
+    calc(13px + 1.04px * (100vw - 1680px) / 240px),
+    14.04px
+  );
+  --nf-size-label: clamp(
+    12px,
+    calc(12px + 0.96px * (100vw - 1680px) / 240px),
+    12.96px
+  );
   --nf-lh-page-title: 1.1;
   --nf-lh-body: 1.5;
-  --nf-table-cell-y: 15px;
+  --nf-table-cell-y: clamp(
+    15px,
+    calc(15px + 1.2px * (100vw - 1680px) / 240px),
+    16.2px
+  );
+  --nf-pad-x: clamp(44px, calc(44px + 3.52px * (100vw - 1680px) / 240px), 47.52px);
+  --nf-pad-top: clamp(38px, calc(38px + 3.04px * (100vw - 1680px) / 240px), 41.04px);
+  --nf-pad-bottom: clamp(
+    44px,
+    calc(44px + 3.52px * (100vw - 1680px) / 240px),
+    47.52px
+  );
+  --nf-sidebar-x: clamp(24px, calc(24px + 1.92px * (100vw - 1680px) / 240px), 25.92px);
+  --nf-sidebar-y: clamp(30px, calc(30px + 2.4px * (100vw - 1680px) / 240px), 32.4px);
+  --nf-section-gap: clamp(48px, calc(48px + 3.84px * (100vw - 1680px) / 240px), 51.84px);
 }
 
 @theme inline {
@@ -97,6 +142,16 @@
   .tabular-nums {
     font-variant-numeric: tabular-nums lining-nums;
   }
+
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid #d9461f;
+    outline-offset: 2px;
+  }
 }
 
 @layer components {
@@ -123,8 +178,19 @@
     font-size: var(--nf-size-kpi);
     line-height: var(--nf-lh-page-title);
     font-weight: 350;
-    letter-spacing: -0.02em;
-    font-variation-settings: "SOFT" 100, "opsz" 72;
+    letter-spacing: -0.01em;
+    font-variation-settings: "SOFT" 100, "opsz" 144;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  .nf-type-figure {
+    font-family: var(--font-display), ui-serif, Georgia, serif;
+    font-size: var(--nf-size-drawer-title);
+    line-height: var(--nf-lh-page-title);
+    font-weight: 350;
+    letter-spacing: -0.01em;
+    font-variation-settings: "SOFT" 100, "opsz" 144;
+    font-variant-numeric: tabular-nums lining-nums;
   }
 
   .nf-type-section {
@@ -162,5 +228,52 @@
 
   .nf-table-head th {
     box-shadow: 0 1px 0 var(--line);
+  }
+
+  .nf-sheet {
+    transition: grid-template-columns 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .nf-risk-fill {
+    animation: nf-risk-grow 640ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .nf-draft-link {
+    font-size: var(--nf-size-body);
+    font-weight: 600;
+    color: #3c4048;
+    background-image: linear-gradient(#d9461f, #d9461f);
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0% 1.5px;
+    padding-bottom: 1px;
+    transition: background-size 180ms ease;
+  }
+
+  .group:hover .nf-draft-link,
+  .group:focus-visible .nf-draft-link,
+  .nf-draft-link[data-active] {
+    background-size: 100% 1.5px;
+  }
+}
+
+@keyframes nf-risk-grow {
+  from {
+    width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nf-sheet,
+  .nf-risk-fill,
+  .nf-draft-link {
+    animation: none;
+    transition: none;
+  }
+
+  .group:hover .nf-draft-link,
+  .group:focus-visible .nf-draft-link,
+  .nf-draft-link[data-active] {
+    background-size: 100% 1.5px;
   }
 }

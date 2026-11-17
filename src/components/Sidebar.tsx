@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { workspace } from "@/data/sample";
+import { useBookSummary } from "@/lib/useBookSummary";
 
 function NeedfireMark() {
   return (
@@ -25,18 +26,20 @@ function NavLink({
   children: ReactNode;
   active: boolean;
 }) {
-  if (active) {
-    return (
-      <span className="nf-type-body relative py-[7px] pl-3.5 font-medium text-ink before:absolute before:left-0 before:top-1/2 before:h-3.5 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-ink/35">
-        {children}
-      </span>
-    );
-  }
   return (
     <Link
       href={href}
-      className="nf-type-body py-[7px] font-medium text-ink-3 transition-colors duration-200 hover:text-ink-2"
+      aria-current={active ? "page" : undefined}
+      className={`nf-type-body flex items-center gap-2 py-[7px] font-medium transition-colors duration-200 ${
+        active ? "text-ink" : "text-ink-3 hover:text-ink-2"
+      }`}
     >
+      <span
+        className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+          active ? "bg-ember" : "bg-transparent"
+        }`}
+        aria-hidden
+      />
       {children}
     </Link>
   );
@@ -44,12 +47,13 @@ function NavLink({
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { arrLabel, live } = useBookSummary();
   const onBrief = pathname === "/";
   const onAccounts = pathname === "/accounts";
   const onSettings = pathname === "/settings";
 
   return (
-    <aside className="flex min-h-0 flex-col overflow-hidden border-r border-line px-6 py-[30px]">
+    <aside className="flex min-h-0 flex-col overflow-hidden border-r border-line px-[var(--nf-sidebar-x)] py-[var(--nf-sidebar-y)]">
       <div className="font-display flex items-center gap-[9px] text-xl font-normal tracking-[-0.01em] [font-variation-settings:'SOFT'_100,'opsz'_40]">
         <NeedfireMark />
         <span>Needfire</span>
@@ -66,7 +70,11 @@ export function Sidebar() {
           Settings
         </NavLink>
       </nav>
-      <div className="nf-type-label mt-auto">Demo data</div>
+      <div className="mt-auto">
+        <div className="nf-type-secondary tabular-nums">{live.critical} critical</div>
+        <div className="nf-type-secondary tabular-nums">{arrLabel} at risk</div>
+        <div className="nf-type-label mt-1.5">Demo data</div>
+      </div>
     </aside>
   );
 }

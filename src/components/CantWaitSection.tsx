@@ -19,6 +19,7 @@ export function CantWaitSection({ selectedId, onSelect }: CantWaitSectionProps) 
       return {
         ...seed,
         score: live?.risk ?? seed.score,
+        arr: live?.arr ?? seed.arr,
       };
     });
   }, [accounts]);

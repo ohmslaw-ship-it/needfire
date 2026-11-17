@@ -9,7 +9,6 @@ export type Workspace = {
 
 export type BriefHeader = {
   dateLabel: string;
-  summary: string;
 };
 
 export type Kpi = {
@@ -69,8 +68,6 @@ export const workspace: Workspace = {
 
 export const briefHeader: BriefHeader = {
   dateLabel: "Monday, 16 Nov",
-  summary:
-    "3 accounts need you today. ₹41.6L ARR at risk, mostly from champion changes.",
 };
 
 export const kpis: Kpi[] = [

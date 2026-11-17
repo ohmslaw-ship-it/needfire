@@ -2,18 +2,27 @@ import type { ReactNode } from "react";
 
 type SheetProps = {
   children: ReactNode;
-  /** Brief and Accounts use the account drawer column; Settings does not. */
-  withDrawer?: boolean;
+  /** Brief and Accounts reserve a drawer column; Settings does not. */
+  showDrawer?: boolean;
+  /** When false the drawer column collapses and the table takes the width. */
+  drawerOpen?: boolean;
 };
 
-export function Sheet({ children, withDrawer = true }: SheetProps) {
+export function Sheet({
+  children,
+  showDrawer = false,
+  drawerOpen = false,
+}: SheetProps) {
+  const columns = showDrawer
+    ? drawerOpen
+      ? "200px minmax(0,1fr) 376px"
+      : "200px minmax(0,1fr) 0px"
+    : "200px minmax(0,1fr)";
+
   return (
     <div
-      className={`relative z-[1] grid h-full min-h-0 flex-1 overflow-hidden rounded-[var(--nf-shell-radius)] border border-[var(--nf-sheet-border)] bg-sheet shadow-[0_1px_2px_rgba(22,24,29,0.04),0_12px_40px_-12px_rgba(22,24,29,0.10)] ${
-        withDrawer
-          ? "grid-cols-[200px_minmax(0,1fr)_376px]"
-          : "grid-cols-[200px_minmax(0,1fr)]"
-      }`}
+      className="nf-sheet relative z-[1] grid h-full min-h-0 flex-1 overflow-hidden rounded-[var(--nf-shell-radius)] border border-[var(--nf-sheet-border)] bg-sheet shadow-[0_1px_2px_rgba(22,24,29,0.04),0_12px_40px_-12px_rgba(22,24,29,0.10)]"
+      style={{ gridTemplateColumns: columns }}
     >
       {children}
     </div>

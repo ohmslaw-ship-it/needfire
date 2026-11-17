@@ -1,11 +1,20 @@
 import type { Metadata } from "next";
 import { Providers } from "@/components/Providers";
 import { fontBody, fontDisplay } from "@/lib/fonts";
+import { siteDescription } from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Needfire · Monday brief",
-  description: "See who's going quiet, why, and what to send them, before standup.",
+  title: {
+    default: "Brief · Needfire",
+    template: "%s · Needfire",
+  },
+  description: siteDescription,
+  openGraph: {
+    title: "Needfire",
+    description: siteDescription,
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

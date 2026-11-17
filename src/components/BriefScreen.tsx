@@ -34,14 +34,14 @@ export function BriefScreen() {
           <BriefHeader />
         </motion.div>
       }
-      drawer={(onScrollNode) => (
+      drawerOpen={selectedId !== null}
+      drawer={
         <AccountDrawer
           accountId={selectedId}
           onClose={() => setSelectedId(null)}
           reducedMotion={reducedMotion}
-          onScrollNode={onScrollNode}
         />
-      )}
+      }
     >
       <motion.div {...rise(reducedMotion, 0.2)}>
         <KpiRow />

@@ -3,17 +3,12 @@
 import { useMemo } from "react";
 import { allAccounts, type Account } from "@/data/accounts";
 import { useSettings } from "@/context/SettingsContext";
-import { computeAccountRisk, statusFromRisk } from "@/lib/riskSignals";
+import { scoreAccounts } from "@/lib/book";
 
 export function useComputedAccounts(): Account[] {
   const { weights, thresholds } = useSettings();
   return useMemo(
-    () =>
-      allAccounts.map((base) => {
-        const risk = computeAccountRisk(base.risk, base, weights);
-        const status = statusFromRisk(risk, thresholds);
-        return { ...base, risk, status };
-      }),
+    () => scoreAccounts(allAccounts, weights, thresholds),
     [weights, thresholds],
   );
 }

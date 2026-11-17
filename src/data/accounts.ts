@@ -638,9 +638,12 @@ export const allAccounts: Account[] = [
 ];
 
 export function getAccountsHeaderSummary(accounts: Account[]): string {
-  const attention = accounts.filter((a) => a.status !== "healthy");
-  const arrAtRisk = attention.reduce((sum, a) => sum + a.arrLakhs, 0);
-  return `${attention.length} need attention, ₹${arrAtRisk.toFixed(1)}L ARR at risk`;
+  const critical = accounts.filter((a) => a.status === "critical").length;
+  const watch = accounts.filter((a) => a.status === "watch").length;
+  const arrAtRisk = accounts
+    .filter((a) => a.status !== "healthy")
+    .reduce((sum, a) => sum + a.arrLakhs, 0);
+  return `${critical} critical, ${watch} on watch. ₹${arrAtRisk.toFixed(1)}L ARR at risk`;
 }
 
 export function getAccountById(id: string): Account | undefined {

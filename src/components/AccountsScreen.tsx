@@ -1,17 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type KeyboardEvent } from "react";
 import { motion } from "motion/react";
 import {
   accountsTotalCount,
-  getAccountsHeaderSummary,
   type Account,
   type AccountStatus,
 } from "@/data/accounts";
 import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
-import { useComputedAccounts } from "@/lib/useComputedAccounts";
+import { useBookSummary } from "@/lib/useBookSummary";
+import { useRowIntro } from "@/lib/useRowIntro";
 import { AccountDrawer } from "./AccountDrawer";
 import { AppShell } from "./AppShell";
+import { RiskBar, tableCellClass } from "./RiskBar";
 
 type StatusFilter = "all" | AccountStatus;
 type SortKey = "risk" | "arr" | "renewal" | "lastActive";
@@ -38,20 +39,6 @@ function rise(reduced: boolean, delay: number) {
         initial: { opacity: 0, y: 12 },
         animate: { opacity: 1, y: 0 },
         transition: { duration: 0.45, delay, ease: [0, 0, 0.2, 1] as const },
-      };
-}
-
-function rowFade(reduced: boolean, index: number) {
-  return reduced
-    ? {}
-    : {
-        initial: { opacity: 0 },
-        animate: { opacity: 1 },
-        transition: {
-          duration: 0.35,
-          delay: Math.min(index * 0.02, 0.4),
-          ease: [0, 0, 0.2, 1] as const,
-        },
       };
 }
 
@@ -109,12 +96,6 @@ function StatusCell({ status }: { status: AccountStatus }) {
   );
 }
 
-function riskBarClass(status: AccountStatus) {
-  if (status === "critical") return "bg-ink-2";
-  if (status === "watch") return "bg-[rgba(22,24,29,0.32)]";
-  return "bg-[rgba(22,24,29,0.18)]";
-}
-
 function SortArrow({ active, dir }: { active: boolean; dir: SortDir }) {
   if (!active) {
     return (
@@ -130,7 +111,8 @@ function SortArrow({ active, dir }: { active: boolean; dir: SortDir }) {
 
 export function AccountsScreen() {
   const reducedMotion = usePrefersReducedMotion();
-  const allAccounts = useComputedAccounts();
+  const { accounts: allAccounts, sentence } = useBookSummary();
+  const rowMotion = useRowIntro();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -138,10 +120,6 @@ export function AccountsScreen() {
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
   const counts = useMemo(() => statusCounts(allAccounts), [allAccounts]);
-  const summary = useMemo(
-    () => getAccountsHeaderSummary(allAccounts),
-    [allAccounts],
-  );
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -164,6 +142,15 @@ export function AccountsScreen() {
     }
   }
 
+  function onSortKey(key: SortKey) {
+    return (event: KeyboardEvent<HTMLTableCellElement>) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        toggleColumnSort(key);
+      }
+    };
+  }
+
   function thClass(key: SortKey) {
     const sortable = ["risk", "arr", "renewal", "lastActive"].includes(key);
     return `nf-type-label nf-table-cell text-left font-medium ${
@@ -180,7 +167,7 @@ export function AccountsScreen() {
             {accountsTotalCount} accounts
           </span>
         </div>
-        <p className="nf-type-body mt-3 text-ink-2">{summary}</p>
+        <p className="nf-type-body mt-3 text-ink-2">{sentence}</p>
         <p className="nf-type-secondary mt-1.5">
           Showing {allAccounts.length} of {accountsTotalCount} in demo
         </p>
@@ -197,7 +184,7 @@ export function AccountsScreen() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search companies"
-            className="nf-type-body w-full max-w-[280px] border-0 border-b border-line bg-transparent py-1.5 text-ink outline-none placeholder:text-ink-3 focus:border-ink/25"
+            className="nf-type-body w-full max-w-[280px] border-0 border-b border-line bg-transparent py-1.5 text-ink placeholder:text-ink-3 focus:border-ink/25"
           />
         </label>
 
@@ -236,7 +223,7 @@ export function AccountsScreen() {
               setSortKey(key);
               setSortDir(key === "risk" || key === "arr" ? "desc" : "asc");
             }}
-            className="nf-type-body cursor-pointer border-0 bg-transparent py-1 font-medium text-ink outline-none"
+            className="nf-type-body cursor-pointer border-0 bg-transparent py-1 font-medium text-ink"
           >
             {sortOptions.map((o) => (
               <option key={o.id} value={o.id}>
@@ -252,14 +239,14 @@ export function AccountsScreen() {
   return (
     <AppShell
       fixedHeader={fixedHeader}
-      drawer={(onScrollNode) => (
+      drawerOpen={selectedId !== null}
+      drawer={
         <AccountDrawer
           accountId={selectedId}
           onClose={() => setSelectedId(null)}
           reducedMotion={reducedMotion}
-          onScrollNode={onScrollNode}
         />
-      )}
+      }
     >
       <motion.section className="min-h-0" {...rise(reducedMotion, 0.25)}>
         {filtered.length === 0 ? (
@@ -275,14 +262,32 @@ export function AccountsScreen() {
                 </th>
                 <th
                   className={`${thClass("arr")} pr-4 text-right`}
+                  tabIndex={0}
+                  aria-sort={
+                    sortKey === "arr"
+                      ? sortDir === "asc"
+                        ? "ascending"
+                        : "descending"
+                      : "none"
+                  }
                   onClick={() => toggleColumnSort("arr")}
+                  onKeyDown={onSortKey("arr")}
                 >
                   ARR
                   <SortArrow active={sortKey === "arr"} dir={sortDir} />
                 </th>
                 <th
                   className={`${thClass("risk")} pr-4 text-right`}
+                  tabIndex={0}
+                  aria-sort={
+                    sortKey === "risk"
+                      ? sortDir === "asc"
+                        ? "ascending"
+                        : "descending"
+                      : "none"
+                  }
                   onClick={() => toggleColumnSort("risk")}
+                  onKeyDown={onSortKey("risk")}
                 >
                   Risk
                   <SortArrow active={sortKey === "risk"} dir={sortDir} />
@@ -296,14 +301,32 @@ export function AccountsScreen() {
                 </th>
                 <th
                   className={thClass("lastActive")}
+                  tabIndex={0}
+                  aria-sort={
+                    sortKey === "lastActive"
+                      ? sortDir === "asc"
+                        ? "ascending"
+                        : "descending"
+                      : "none"
+                  }
                   onClick={() => toggleColumnSort("lastActive")}
+                  onKeyDown={onSortKey("lastActive")}
                 >
                   Last active
                   <SortArrow active={sortKey === "lastActive"} dir={sortDir} />
                 </th>
                 <th
                   className={thClass("renewal")}
+                  tabIndex={0}
+                  aria-sort={
+                    sortKey === "renewal"
+                      ? sortDir === "asc"
+                        ? "ascending"
+                        : "descending"
+                      : "none"
+                  }
                   onClick={() => toggleColumnSort("renewal")}
+                  onKeyDown={onSortKey("renewal")}
                 >
                   Renewal
                   <SortArrow active={sortKey === "renewal"} dir={sortDir} />
@@ -316,96 +339,60 @@ export function AccountsScreen() {
             <tbody>
               {filtered.map((row, index) => {
                 const selected = selectedId === row.id;
+                const openRow = () => setSelectedId(row.id);
                 return (
                   <motion.tr
                     key={row.id}
-                    onClick={() => setSelectedId(row.id)}
+                    tabIndex={0}
+                    aria-selected={selected}
+                    onClick={openRow}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        openRow();
+                      }
+                    }}
                     className="group cursor-pointer border-b border-line last:border-b-0"
-                    {...rowFade(reducedMotion, index)}
+                    {...rowMotion(row.id, index)}
                   >
                     <td
-                      className={`nf-type-body nf-table-cell whitespace-nowrap font-medium transition-colors duration-200 ${
-                        selected
-                          ? "bg-ink/[0.035] shadow-[-12px_0_0_rgba(22,24,29,0.035)]"
-                          : "group-hover:bg-ink/[0.02]"
-                      }`}
+                      className={`nf-type-body whitespace-nowrap font-medium ${tableCellClass(selected, true)}`}
                     >
                       {row.name}
                     </td>
                     <td
-                      className={`nf-type-body nf-table-cell tabular-nums whitespace-nowrap pr-4 text-right transition-colors duration-200 ${
-                        selected
-                          ? "bg-ink/[0.035]"
-                          : "group-hover:bg-ink/[0.02]"
-                      }`}
+                      className={`nf-type-body tabular-nums whitespace-nowrap pr-4 text-right ${tableCellClass(selected)}`}
                     >
                       {row.arr}
                     </td>
                     <td
-                      className={`nf-type-body nf-table-cell tabular-nums whitespace-nowrap pr-4 text-right font-semibold transition-colors duration-200 ${
-                        selected
-                          ? "bg-ink/[0.035]"
-                          : "group-hover:bg-ink/[0.02]"
-                      }`}
+                      className={`nf-type-body tabular-nums whitespace-nowrap pr-4 text-right font-semibold ${tableCellClass(selected)}`}
                     >
                       {row.risk}
                     </td>
-                    <td
-                      className={`nf-table-cell w-[70px] transition-colors duration-200 ${
-                        selected
-                          ? "bg-ink/[0.035]"
-                          : "group-hover:bg-ink/[0.02]"
-                      }`}
-                    >
-                      <span className="block h-[3px] w-14 rounded-sm bg-[rgba(22,24,29,0.08)]">
-                        <i
-                          className={`block h-full rounded-sm ${riskBarClass(row.status)}`}
-                          style={{ width: `${row.risk}%` }}
-                        />
-                      </span>
+                    <td className={`w-[70px] ${tableCellClass(selected)}`}>
+                      <RiskBar risk={row.risk} status={row.status} />
                     </td>
-                    <td
-                      className={`nf-table-cell whitespace-nowrap transition-colors duration-200 ${
-                        selected
-                          ? "bg-ink/[0.035]"
-                          : "group-hover:bg-ink/[0.02]"
-                      }`}
-                    >
+                    <td className={`whitespace-nowrap ${tableCellClass(selected)}`}>
                       <StatusCell status={row.status} />
                     </td>
                     <td
-                      className={`nf-type-secondary nf-table-cell whitespace-nowrap transition-colors duration-200 ${
-                        selected
-                          ? "bg-ink/[0.035]"
-                          : "group-hover:bg-ink/[0.02]"
-                      }`}
+                      className={`nf-type-body whitespace-nowrap text-ink-3 ${tableCellClass(selected)}`}
                     >
                       {row.reason}
                     </td>
                     <td
-                      className={`nf-type-secondary nf-table-cell tabular-nums whitespace-nowrap transition-colors duration-200 ${
-                        selected
-                          ? "bg-ink/[0.035]"
-                          : "group-hover:bg-ink/[0.02]"
-                      }`}
+                      className={`nf-type-body tabular-nums whitespace-nowrap text-ink-3 ${tableCellClass(selected)}`}
                     >
                       {row.lastActive}
                     </td>
                     <td
-                      className={`nf-type-body nf-table-cell tabular-nums whitespace-nowrap transition-colors duration-200 ${
-                        selected
-                          ? "bg-ink/[0.035]"
-                          : "group-hover:bg-ink/[0.02]"
-                      }`}
+                      className={`nf-type-body tabular-nums whitespace-nowrap ${tableCellClass(selected)}`}
                     >
                       {row.renewal}
                     </td>
                     <td
-                      className={`nf-type-secondary nf-table-cell whitespace-nowrap transition-colors duration-200 ${
-                        selected
-                          ? "bg-ink/[0.035] shadow-[12px_0_0_rgba(22,24,29,0.035)]"
-                          : "group-hover:bg-ink/[0.02]"
-                      }`}
+                      className={`nf-type-body whitespace-nowrap text-ink-3 ${tableCellClass(selected)}`}
                     >
                       {row.owner}
                     </td>

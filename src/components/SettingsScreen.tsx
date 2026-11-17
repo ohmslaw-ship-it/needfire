@@ -83,6 +83,7 @@ function SignalRow({
           onChange={(e) => onWeight(Number(e.target.value))}
           className="h-1 w-full max-w-[96px] cursor-pointer accent-ink"
           aria-label={`${name} weight`}
+          aria-valuetext={`${weight} of 3`}
         />
         <span className="nf-type-body tabular-nums w-4 text-right font-medium">
           {weight}
@@ -182,7 +183,7 @@ export function SettingsScreen() {
                 max={100}
                 value={thresholds.critical}
                 onChange={(e) => setThreshold("critical", Number(e.target.value))}
-                className="nf-type-body tabular-nums w-24 rounded-lg border border-line bg-card px-3 py-2 outline-none focus:border-ink/25"
+                className="nf-type-body tabular-nums w-24 rounded-lg border border-line bg-card px-3 py-2 focus:border-ink/25"
               />
             </label>
             <label className="flex flex-col gap-1.5">
@@ -193,7 +194,7 @@ export function SettingsScreen() {
                 max={100}
                 value={thresholds.watch}
                 onChange={(e) => setThreshold("watch", Number(e.target.value))}
-                className="nf-type-body tabular-nums w-24 rounded-lg border border-line bg-card px-3 py-2 outline-none focus:border-ink/25"
+                className="nf-type-body tabular-nums w-24 rounded-lg border border-line bg-card px-3 py-2 focus:border-ink/25"
               />
             </label>
           </div>
@@ -210,6 +211,7 @@ export function SettingsScreen() {
           <div className="mb-6 flex flex-wrap gap-4">
             <button
               type="button"
+              aria-pressed={aiMode === "demo"}
               onClick={() => setAiMode("demo")}
               className={`nf-type-body font-medium transition-colors ${
                 aiMode === "demo"
@@ -221,6 +223,7 @@ export function SettingsScreen() {
             </button>
             <button
               type="button"
+              aria-pressed={aiMode === "api"}
               onClick={() => setAiMode("api")}
               className={`nf-type-body font-medium transition-colors ${
                 aiMode === "api"
@@ -239,7 +242,8 @@ export function SettingsScreen() {
                 onChange={(e) => setApiKey(e.target.value)}
                 placeholder="sk-…"
                 autoComplete="off"
-                className="nf-type-body w-full max-w-md rounded-lg border border-line bg-card px-3 py-2 outline-none focus:border-ink/25"
+                aria-label="API key"
+                className="nf-type-body w-full max-w-md rounded-lg border border-line bg-card px-3 py-2 focus:border-ink/25"
               />
               <p className="nf-type-secondary mt-2">
                 Stored for this session only, never sent to our servers.
@@ -255,6 +259,7 @@ export function SettingsScreen() {
                 <button
                   key={id}
                   type="button"
+                  aria-pressed={defaultTone === id}
                   onClick={() => setDefaultTone(id)}
                   className={
                     defaultTone === id
@@ -273,7 +278,8 @@ export function SettingsScreen() {
               type="text"
               value={signOffName}
               onChange={(e) => setSignOffName(e.target.value)}
-              className="nf-type-body max-w-md rounded-lg border border-line bg-card px-3 py-2 outline-none focus:border-ink/25"
+              aria-label="Sign-off name"
+              className="nf-type-body max-w-md rounded-lg border border-line bg-card px-3 py-2 focus:border-ink/25"
             />
           </label>
         </Section>

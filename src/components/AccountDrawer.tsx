@@ -10,12 +10,12 @@ import {
 import { buildGeneratedDrawerDetail, type Account } from "@/data/accounts";
 import { useSettings } from "@/context/SettingsContext";
 import { useComputedAccountById } from "@/lib/useComputedAccounts";
+import { ScrollArea } from "./ScrollArea";
 
 type AccountDrawerProps = {
   accountId: string | null;
   onClose: () => void;
   reducedMotion: boolean;
-  onScrollNode: (node: HTMLDivElement | null) => void;
 };
 
 const toneLabels: { id: Tone; label: string }[] = [
@@ -148,6 +148,7 @@ function AccountDrawerBody({
                   <button
                     key={id}
                     type="button"
+                    aria-pressed={tone === id}
                     onClick={() => setPickedTone(id)}
                     className={
                       tone === id
@@ -205,55 +206,64 @@ export function AccountDrawer({
   accountId,
   onClose,
   reducedMotion,
-  onScrollNode,
 }: AccountDrawerProps) {
+  const [shownId, setShownId] = useState(accountId);
+  if (accountId !== null && accountId !== shownId) {
+    setShownId(accountId);
+  }
+  const displayId = shownId;
+  const open = accountId !== null;
+
   const crossFade = reducedMotion
     ? { duration: 0 }
     : { duration: 0.25, ease: [0, 0, 0.2, 1] as const };
 
-  return (
-    <aside className="flex min-h-0 flex-col overflow-hidden border-l border-line bg-drawer">
-      <div className="nf-type-secondary flex shrink-0 justify-between px-8 pt-[30px]">
-        <span>Account</span>
-        <button type="button" onClick={onClose}>
-          Close
-        </button>
-      </div>
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
 
-      <div
-        ref={onScrollNode}
-        className="nf-scrollbar-hide min-h-0 flex-1 overflow-y-auto overscroll-contain px-8 pb-[30px]"
-      >
-        <AnimatePresence mode="wait">
-          {!accountId ? (
-            <motion.div
-              key="empty"
-              initial={reducedMotion ? false : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={reducedMotion ? undefined : { opacity: 0 }}
-              transition={crossFade}
-              className="nf-type-secondary mt-6"
-            >
-              Select an account from the table or Can&apos;t wait cards.
-            </motion.div>
-          ) : (
-            <motion.div
-              key={accountId}
-              initial={reducedMotion ? false : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={reducedMotion ? undefined : { opacity: 0 }}
-              transition={crossFade}
-              className="flex min-h-0 flex-col"
-            >
-              <AccountDrawerBody
-                key={accountId}
-                accountId={accountId}
-                reducedMotion={reducedMotion}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+  return (
+    <aside
+      className="flex h-full min-h-0 w-[376px] min-w-[376px] flex-col overflow-hidden border-l border-line bg-drawer"
+      aria-hidden={!open}
+      inert={!open}
+    >
+      {displayId ? (
+        <>
+          <div className="nf-type-secondary flex shrink-0 justify-between px-8 pt-[30px]">
+            <span>Account</span>
+            <button type="button" onClick={onClose} aria-label="Close account">
+              Close
+            </button>
+          </div>
+
+          <ScrollArea className="min-h-0 flex-1">
+            <div className="px-8 pb-[30px]">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={displayId}
+                  initial={reducedMotion ? false : { opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={reducedMotion ? undefined : { opacity: 0 }}
+                  transition={crossFade}
+                  className="flex min-h-0 flex-col"
+                >
+                  <AccountDrawerBody
+                    key={displayId}
+                    accountId={displayId}
+                    reducedMotion={reducedMotion}
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </ScrollArea>
+        </>
+      ) : null}
     </aside>
   );
 }

@@ -1,8 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
+import { motion } from "motion/react";
 import { atRiskAccounts } from "@/data/sample";
 import { useComputedAccounts } from "@/lib/useComputedAccounts";
+import { useRowIntro } from "@/lib/useRowIntro";
+import { RiskBar, tableCellClass } from "./RiskBar";
 
 type AtRiskTableProps = {
   selectedId: string | null;
@@ -11,6 +14,7 @@ type AtRiskTableProps = {
 
 export function AtRiskTable({ selectedId, onSelect }: AtRiskTableProps) {
   const accounts = useComputedAccounts();
+  const rowMotion = useRowIntro();
 
   const { rows, totalLabel } = useMemo(() => {
     const byId = new Map(accounts.map((a) => [a.id, a]));
@@ -20,8 +24,9 @@ export function AtRiskTable({ selectedId, onSelect }: AtRiskTableProps) {
       const status = live?.status ?? (seed.tier === "crit" ? "critical" : "watch");
       return {
         ...seed,
+        arr: live?.arr ?? seed.arr,
         risk,
-        tier: status === "critical" ? ("crit" as const) : ("watch" as const),
+        status,
       };
     });
     const flagged = accounts.filter((a) => a.status !== "healthy").length;
@@ -29,7 +34,7 @@ export function AtRiskTable({ selectedId, onSelect }: AtRiskTableProps) {
   }, [accounts]);
 
   return (
-    <section className="mt-12">
+    <section className="mt-[var(--nf-section-gap)]">
       <div className="mb-2 flex items-baseline gap-2.5">
         <h2 className="nf-type-section">At risk</h2>
         <span className="nf-type-secondary">{totalLabel}</span>
@@ -62,77 +67,57 @@ export function AtRiskTable({ selectedId, onSelect }: AtRiskTableProps) {
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => {
+          {rows.map((row, index) => {
             const selected = selectedId === row.id;
             return (
-              <tr
+              <motion.tr
                 key={row.id}
+                tabIndex={0}
+                aria-selected={selected}
                 onClick={() => onSelect(row.id)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    onSelect(row.id);
+                  }
+                }}
                 className="group cursor-pointer border-b border-line last:border-b-0"
+                {...rowMotion(row.id, index)}
               >
                 <td
-                  className={`nf-type-body nf-table-cell whitespace-nowrap font-medium transition-colors duration-200 ${
-                    selected
-                      ? "bg-ink/[0.035] shadow-[-12px_0_0_rgba(22,24,29,0.035)]"
-                      : "group-hover:bg-ink/[0.02]"
-                  }`}
+                  className={`nf-type-body whitespace-nowrap font-medium ${tableCellClass(selected, true)}`}
                 >
                   {row.name}
                 </td>
                 <td
-                  className={`nf-type-body nf-table-cell tabular-nums whitespace-nowrap pr-4 text-right transition-colors duration-200 ${
-                    selected ? "bg-ink/[0.035]" : "group-hover:bg-ink/[0.02]"
-                  }`}
+                  className={`nf-type-body tabular-nums whitespace-nowrap pr-4 text-right ${tableCellClass(selected)}`}
                 >
                   {row.arr}
                 </td>
                 <td
-                  className={`nf-type-body nf-table-cell tabular-nums whitespace-nowrap pr-4 text-right font-semibold transition-colors duration-200 ${
-                    selected ? "bg-ink/[0.035]" : "group-hover:bg-ink/[0.02]"
-                  }`}
+                  className={`nf-type-body tabular-nums whitespace-nowrap pr-4 text-right font-semibold ${tableCellClass(selected)}`}
                 >
                   {row.risk}
                 </td>
-                <td
-                  className={`nf-table-cell w-[70px] transition-colors duration-200 ${
-                    selected ? "bg-ink/[0.035]" : "group-hover:bg-ink/[0.02]"
-                  }`}
-                >
-                  <span className="block h-[3px] w-14 rounded-sm bg-[rgba(22,24,29,0.08)]">
-                    <i
-                      className={`block h-full rounded-sm ${
-                        row.tier === "watch"
-                          ? "bg-[rgba(22,24,29,0.32)]"
-                          : "bg-ink-2"
-                      }`}
-                      style={{ width: `${row.risk}%` }}
-                    />
-                  </span>
+                <td className={`w-[70px] ${tableCellClass(selected)}`}>
+                  <RiskBar risk={row.risk} status={row.status} />
                 </td>
                 <td
-                  className={`nf-type-secondary nf-table-cell whitespace-nowrap transition-colors duration-200 ${
-                    selected ? "bg-ink/[0.035]" : "group-hover:bg-ink/[0.02]"
-                  }`}
+                  className={`nf-type-body whitespace-nowrap text-ink-3 ${tableCellClass(selected)}`}
                 >
                   {row.reason}
                 </td>
                 <td
-                  className={`nf-type-body nf-table-cell tabular-nums whitespace-nowrap transition-colors duration-200 ${
-                    selected ? "bg-ink/[0.035]" : "group-hover:bg-ink/[0.02]"
-                  }`}
+                  className={`nf-type-body tabular-nums whitespace-nowrap ${tableCellClass(selected)}`}
                 >
                   {row.renewal}
                 </td>
                 <td
-                  className={`nf-type-secondary nf-table-cell whitespace-nowrap transition-colors duration-200 ${
-                    selected
-                      ? "bg-ink/[0.035] shadow-[12px_0_0_rgba(22,24,29,0.035)]"
-                      : "group-hover:bg-ink/[0.02]"
-                  }`}
+                  className={`nf-type-body whitespace-nowrap text-ink-3 ${tableCellClass(selected)}`}
                 >
                   {row.owner}
                 </td>
-              </tr>
+              </motion.tr>
             );
           })}
         </tbody>

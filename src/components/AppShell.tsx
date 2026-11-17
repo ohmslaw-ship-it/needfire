@@ -1,17 +1,18 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
-import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
+import type { ReactNode } from "react";
 import { CanvasWash } from "./CanvasWash";
-import { ScrollCapsule } from "./ScrollCapsule";
+import { ScrollArea } from "./ScrollArea";
 import { Sheet } from "./Sheet";
 import { Sidebar } from "./Sidebar";
 
 type AppShellProps = {
   fixedHeader: ReactNode;
   children: ReactNode;
-  /** When set, renders the account drawer column (Brief, Accounts). */
-  drawer?: (onScrollNode: (node: HTMLDivElement | null) => void) => ReactNode;
+  /** Account drawer. Omit on Settings. */
+  drawer?: ReactNode;
+  /** Slides the drawer column open. Ignored when `drawer` is omitted. */
+  drawerOpen?: boolean;
   /** Constrains and centers main column content (e.g. Settings). */
   contentMaxWidth?: number;
 };
@@ -35,46 +36,31 @@ export function AppShell({
   fixedHeader,
   children,
   drawer,
+  drawerOpen = false,
   contentMaxWidth,
 }: AppShellProps) {
-  const reducedMotion = usePrefersReducedMotion();
-  const [mainScroller, setMainScroller] = useState<HTMLElement | null>(null);
-  const [drawerScroller, setDrawerScroller] = useState<HTMLDivElement | null>(
-    null,
-  );
-  const withDrawer = Boolean(drawer);
+  const showDrawer = drawer != null;
 
   return (
     <div className="relative isolate box-border flex h-dvh max-h-dvh w-full max-w-none flex-col overflow-hidden p-[var(--nf-shell-margin)]">
       <CanvasWash />
-      <ScrollCapsule
-        scrollElement={mainScroller}
-        reducedMotion={reducedMotion}
-      />
-      {withDrawer && (
-        <ScrollCapsule
-          scrollElement={drawerScroller}
-          reducedMotion={reducedMotion}
-        />
-      )}
-      <Sheet withDrawer={withDrawer}>
+      <Sheet showDrawer={showDrawer} drawerOpen={showDrawer && drawerOpen}>
         <Sidebar />
         <main className="flex min-h-0 min-w-0 flex-col overflow-hidden">
-          <div className="shrink-0 px-11 pt-[38px]">
+          <div className="shrink-0 px-[var(--nf-pad-x)] pt-[var(--nf-pad-top)]">
             <ContentColumn maxWidth={contentMaxWidth}>
               {fixedHeader}
             </ContentColumn>
           </div>
-          <div
-            ref={setMainScroller}
-            className="nf-scrollbar-hide min-h-0 flex-1 overflow-y-auto overscroll-contain px-11 pb-11"
-          >
-            <ContentColumn maxWidth={contentMaxWidth}>
-              {children}
-            </ContentColumn>
-          </div>
+          <ScrollArea className="min-h-0 flex-1">
+            <div className="px-[var(--nf-pad-x)] pb-[var(--nf-pad-bottom)]">
+              <ContentColumn maxWidth={contentMaxWidth}>{children}</ContentColumn>
+            </div>
+          </ScrollArea>
         </main>
-        {drawer?.(setDrawerScroller)}
+        {showDrawer ? (
+          <div className="min-w-0 overflow-hidden">{drawer}</div>
+        ) : null}
       </Sheet>
     </div>
   );

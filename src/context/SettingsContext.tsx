@@ -77,10 +77,8 @@ function persistSlice(settings: NeedfireSettings) {
 }
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
-  const [settings, setSettings] = useState<NeedfireSettings>(() =>
-    typeof window !== "undefined" ? loadPersistedSettings() : defaultSettings,
-  );
-  const [hydrated, setHydrated] = useState(() => typeof window !== "undefined");
+  const [settings, setSettings] = useState<NeedfireSettings>(defaultSettings);
+  const [hydrated, setHydrated] = useState(false);
   const [savedVisible, setSavedVisible] = useState(false);
   const saveTimer = useRef<number | null>(null);
   const skipNextPersist = useRef(true);
