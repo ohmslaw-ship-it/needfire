@@ -42,7 +42,7 @@ export function AtRiskTable({ selectedId, onSelect }: AtRiskTableProps) {
           View all
         </span>
       </div>
-      <table className="nf-table-fixed border-collapse">
+      <table className="nf-table-fixed w-full border-collapse">
         <colgroup>
           <col style={{ width: "28%" }} />
           <col style={{ width: "10%" }} />
@@ -75,9 +75,10 @@ export function AtRiskTable({ selectedId, onSelect }: AtRiskTableProps) {
             </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="nf-table-body">
           {rows.map((row, index) => {
             const selected = selectedId === row.id;
+            const rowWeight = selected ? "font-semibold" : "font-medium";
             return (
               <motion.tr
                 key={row.id}
@@ -94,17 +95,17 @@ export function AtRiskTable({ selectedId, onSelect }: AtRiskTableProps) {
                 {...rowMotion(row.id, index)}
               >
                 <td
-                  className={`nf-type-body whitespace-nowrap ${selected ? "font-semibold" : "font-medium"} ${tableCellClass(selected)}`}
+                  className={`nf-type-body whitespace-nowrap ${rowWeight} ${tableCellClass(selected)}`}
                 >
                   {row.name}
                 </td>
                 <td
-                  className={`nf-type-body tabular-nums whitespace-nowrap pr-4 text-right ${tableCellClass(selected)}`}
+                  className={`nf-type-body tabular-nums whitespace-nowrap pr-4 text-right ${rowWeight} ${tableCellClass(selected)}`}
                 >
                   {row.arr}
                 </td>
                 <td
-                  className={`nf-type-body tabular-nums whitespace-nowrap pr-4 text-right font-semibold ${tableCellClass(selected)}`}
+                  className={`nf-type-body tabular-nums whitespace-nowrap pr-4 text-right ${rowWeight} ${tableCellClass(selected)}`}
                 >
                   {row.risk}
                 </td>
@@ -112,18 +113,18 @@ export function AtRiskTable({ selectedId, onSelect }: AtRiskTableProps) {
                   <RiskBar risk={row.risk} status={row.status} />
                 </td>
                 <td
-                  className={`nf-type-body nf-table-cell-reason text-ink-3 ${tableCellClass(selected)}`}
+                  className={`nf-type-body nf-table-cell-reason text-ink-3 ${rowWeight} ${tableCellClass(selected)}`}
                   title={row.reason}
                 >
                   {row.reason}
                 </td>
                 <td
-                  className={`nf-type-body nf-table-cell-inset tabular-nums whitespace-nowrap ${tableCellClass(selected)}`}
+                  className={`nf-type-body nf-table-cell-inset tabular-nums whitespace-nowrap ${rowWeight} ${tableCellClass(selected)}`}
                 >
                   {row.renewal}
                 </td>
                 <td
-                  className={`nf-type-body whitespace-nowrap text-ink-3 ${tableCellClass(selected)}`}
+                  className={`nf-type-body whitespace-nowrap text-ink-3 ${rowWeight} ${tableCellClass(selected)}`}
                 >
                   {row.owner}
                 </td>

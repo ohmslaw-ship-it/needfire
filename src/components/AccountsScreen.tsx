@@ -9,6 +9,7 @@ import {
 } from "@/data/accounts";
 import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 import { useBookSummary } from "@/lib/useBookSummary";
+import { useMediaQuery } from "@/lib/useMediaQuery";
 import { useRowIntro } from "@/lib/useRowIntro";
 import { AccountDrawer } from "./AccountDrawer";
 import { AppShell } from "./AppShell";
@@ -72,7 +73,13 @@ function compareAccounts(a: Account, b: Account, key: SortKey, dir: SortDir) {
   return dir === "asc" ? cmp : -cmp;
 }
 
-function StatusCell({ status }: { status: AccountStatus }) {
+function StatusCell({
+  status,
+  compact = false,
+}: {
+  status: AccountStatus;
+  compact?: boolean;
+}) {
   const label =
     status === "critical"
       ? "Critical"
@@ -88,11 +95,47 @@ function StatusCell({ status }: { status: AccountStatus }) {
   const textClass =
     status === "critical" ? "text-ember font-medium" : "text-ink-3";
 
+  if (compact) {
+    return (
+      <span className="inline-flex items-center justify-center" title={label}>
+        <span className="sr-only">{label}</span>
+        <span
+          className={`h-1.5 w-1.5 shrink-0 rounded-full ${dotClass}`}
+          aria-hidden
+        />
+      </span>
+    );
+  }
+
   return (
     <span className="inline-flex items-center gap-2 whitespace-nowrap">
       <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${dotClass}`} />
-      <span className={`nf-type-body whitespace-nowrap ${textClass}`}>{label}</span>
+      <span className={`nf-type-body whitespace-nowrap ${textClass}`}>
+        {label}
+      </span>
     </span>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="shrink-0 text-[#585C65]"
+      aria-hidden
+    >
+      <path
+        d="M7.25 12.5a5.25 5.25 0 1 0 0-10.5 5.25 5.25 0 0 0 0 10.5Zm5.25-1.5 2.25 2.25"
+        stroke="currentColor"
+        strokeWidth="1.25"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 
@@ -121,6 +164,8 @@ export function AccountsScreen() {
 
   const counts = useMemo(() => statusCounts(allAccounts), [allAccounts]);
   const drawerOpen = selectedId !== null;
+  const viewportNarrow = useMediaQuery("(max-width: 1399px)");
+  const compactStatus = drawerOpen && viewportNarrow;
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -159,87 +204,8 @@ export function AccountsScreen() {
     }`;
   }
 
-  const fixedHeader = (
-  <>
-      <motion.header {...rise(reducedMotion, 0)} className="pb-4">
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <h1 className="nf-type-page-title">Accounts</h1>
-          <span className="nf-type-secondary">
-            {accountsTotalCount} accounts
-          </span>
-        </div>
-        <p className="nf-type-body mt-3 text-ink-2">{sentence}</p>
-        <p className="nf-type-secondary mt-1.5">
-          Showing {allAccounts.length} of {accountsTotalCount} in demo
-        </p>
-      </motion.header>
-
-      <motion.div
-        className="flex flex-wrap items-center gap-x-8 gap-y-4 pb-6"
-        {...rise(reducedMotion, 0.15)}
-      >
-        <label className="flex min-w-[200px] flex-1 items-center gap-2">
-          <span className="sr-only">Search accounts</span>
-          <input
-            type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search companies"
-            className="nf-type-body w-full max-w-[280px] border-0 border-b border-line bg-transparent py-1.5 text-ink placeholder:text-ink-3 focus:border-ink/25"
-          />
-        </label>
-
-        <div
-          className="nf-type-secondary flex flex-wrap items-center gap-1"
-          role="tablist"
-          aria-label="Filter by status"
-        >
-          {statusFilterLabels.map(({ id, label }) => {
-            const active = statusFilter === id;
-            const count = counts[id];
-            return (
-              <button
-                key={id}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => setStatusFilter(id)}
-                className={`rounded-sm px-2 py-1 transition-colors duration-200 ${
-                  active ? "nf-type-body font-semibold text-ink" : "hover:text-ink-2"
-                }`}
-              >
-                {label}
-                <span className="ml-1 tabular-nums">{count}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        <label className="nf-type-secondary flex items-center gap-2">
-          <span>Sort</span>
-          <select
-            value={sortKey}
-            onChange={(e) => {
-              const key = e.target.value as SortKey;
-              setSortKey(key);
-              setSortDir(key === "risk" || key === "arr" ? "desc" : "asc");
-            }}
-            className="nf-type-body cursor-pointer border-0 bg-transparent py-1 font-medium text-ink"
-          >
-            {sortOptions.map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.label}
-              </option>
-            ))}
-          </select>
-        </label>
-      </motion.div>
-  </>
-  );
-
   return (
     <AppShell
-      fixedHeader={fixedHeader}
       drawerOpen={drawerOpen}
       drawer={
         <AccountDrawer
@@ -249,13 +215,93 @@ export function AccountsScreen() {
         />
       }
     >
-      <motion.section className="min-h-0" {...rise(reducedMotion, 0.25)}>
+      <div className="w-full min-w-0">
+        <motion.header {...rise(reducedMotion, 0)} className="pb-4">
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <h1 className="nf-type-page-title">Accounts</h1>
+            <span className="nf-type-secondary">
+              {accountsTotalCount} accounts
+            </span>
+          </div>
+          <p className="nf-type-body mt-3 text-ink-2">{sentence}</p>
+          <p className="nf-type-secondary mt-1.5">
+            Showing {allAccounts.length} of {accountsTotalCount} in demo
+          </p>
+        </motion.header>
+
+        <motion.div
+          className="flex flex-wrap items-center gap-x-6 gap-y-4 pb-6"
+          {...rise(reducedMotion, 0.15)}
+        >
+          <label className="nf-accounts-search nf-type-body">
+            <SearchIcon />
+            <span className="sr-only">Search accounts</span>
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search companies"
+              className="nf-accounts-search-input nf-type-body"
+            />
+          </label>
+
+          <div className="ml-auto flex flex-wrap items-center gap-x-8 gap-y-3">
+            <div
+              className="nf-type-secondary flex flex-wrap items-center gap-1"
+              role="tablist"
+              aria-label="Filter by status"
+            >
+              {statusFilterLabels.map(({ id, label }) => {
+                const active = statusFilter === id;
+                const count = counts[id];
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    onClick={() => setStatusFilter(id)}
+                    className={`rounded-sm px-2 py-1 transition-colors duration-200 ${
+                      active
+                        ? "nf-type-body font-semibold text-ink"
+                        : "hover:text-ink-2"
+                    }`}
+                  >
+                    {label}
+                    <span className="ml-1 tabular-nums">{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <label className="nf-type-secondary flex items-center gap-2">
+              <span>Sort</span>
+              <select
+                value={sortKey}
+                onChange={(e) => {
+                  const key = e.target.value as SortKey;
+                  setSortKey(key);
+                  setSortDir(key === "risk" || key === "arr" ? "desc" : "asc");
+                }}
+                className="nf-type-body cursor-pointer border-0 bg-transparent py-1 font-medium text-ink"
+              >
+                {sortOptions.map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </motion.div>
+
+        <motion.section className="min-h-0 w-full" {...rise(reducedMotion, 0.25)}>
         {filtered.length === 0 ? (
           <p className="nf-type-secondary py-8">
             No accounts match your search.
           </p>
         ) : (
-          <table className="nf-table-fixed border-collapse">
+          <table className="nf-table-fixed w-full border-collapse">
             <colgroup>
               {drawerOpen ? (
                 <>
@@ -263,8 +309,12 @@ export function AccountsScreen() {
                   <col style={{ width: "11%" }} />
                   <col style={{ width: "5%" }} />
                   <col style={{ width: "10%" }} />
-                  <col style={{ width: "13%" }} />
-                  <col style={{ width: "25%" }} />
+                  <col
+                    style={{ width: compactStatus ? "5%" : "13%" }}
+                  />
+                  <col
+                    style={{ width: compactStatus ? "33%" : "25%" }}
+                  />
                   <col style={{ width: "10%" }} />
                 </>
               ) : (
@@ -320,11 +370,15 @@ export function AccountsScreen() {
                 </th>
                 <th className="nf-type-label nf-table-cell font-medium"> </th>
                 <th
-                  className={`nf-type-label nf-table-cell nf-table-cell-inset text-left font-medium ${
-                    drawerOpen ? "pr-[16px]" : ""
-                  }`}
+                  className={`nf-type-label nf-table-cell nf-table-cell-inset text-left font-medium${
+                    drawerOpen && compactStatus ? " text-center" : ""
+                  }${drawerOpen && !compactStatus ? " pr-[16px]" : ""}`}
                 >
-                  Status
+                  {drawerOpen && compactStatus ? (
+                    <span className="sr-only">Status</span>
+                  ) : (
+                    "Status"
+                  )}
                 </th>
                 <th className="nf-type-label nf-table-cell text-left font-medium">
                   Reason
@@ -348,7 +402,7 @@ export function AccountsScreen() {
                   </th>
                 ) : null}
                 <th
-                  className={`${thClass("renewal")} nf-table-cell-inset whitespace-nowrap pr-[8px]`}
+                  className={`${thClass("renewal")} nf-table-cell-inset whitespace-nowrap${!drawerOpen ? " pr-[8px]" : ""}`}
                   tabIndex={0}
                   aria-sort={
                     sortKey === "renewal"
@@ -370,10 +424,11 @@ export function AccountsScreen() {
                 ) : null}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="nf-table-body">
               {filtered.map((row, index) => {
                 const selected = selectedId === row.id;
                 const openRow = () => setSelectedId(row.id);
+                const rowWeight = selected ? "font-semibold" : "font-medium";
                 return (
                   <motion.tr
                     key={row.id}
@@ -390,17 +445,17 @@ export function AccountsScreen() {
                     {...rowMotion(row.id, index)}
                   >
                     <td
-                      className={`nf-type-body whitespace-nowrap ${selected ? "font-semibold" : "font-medium"} ${tableCellClass(selected)}`}
+                      className={`nf-type-body whitespace-nowrap ${rowWeight} ${tableCellClass(selected)}`}
                     >
                       {row.name}
                     </td>
                     <td
-                      className={`nf-type-body tabular-nums whitespace-nowrap pr-4 text-right ${tableCellClass(selected)}`}
+                      className={`nf-type-body tabular-nums whitespace-nowrap pr-4 text-right ${rowWeight} ${tableCellClass(selected)}`}
                     >
                       {row.arr}
                     </td>
                     <td
-                      className={`nf-type-body tabular-nums whitespace-nowrap pr-4 text-right font-semibold ${tableCellClass(selected)}`}
+                      className={`nf-type-body tabular-nums whitespace-nowrap pr-4 text-right ${rowWeight} ${tableCellClass(selected)}`}
                     >
                       {row.risk}
                     </td>
@@ -409,32 +464,35 @@ export function AccountsScreen() {
                     </td>
                     <td
                       className={`nf-table-cell-inset whitespace-nowrap ${
-                        drawerOpen ? "pr-[16px]" : ""
-                      } ${tableCellClass(selected)}`}
+                        drawerOpen && compactStatus ? "text-center" : ""
+                      }${drawerOpen && !compactStatus ? " pr-[16px]" : ""} ${tableCellClass(selected)}`}
                     >
-                      <StatusCell status={row.status} />
+                      <StatusCell
+                        status={row.status}
+                        compact={compactStatus}
+                      />
                     </td>
                     <td
-                      className={`nf-type-body nf-table-cell-reason text-ink-3 ${tableCellClass(selected)}`}
+                      className={`nf-type-body nf-table-cell-reason text-ink-3 ${rowWeight} ${tableCellClass(selected)}`}
                       title={row.reason}
                     >
                       {row.reason}
                     </td>
                     {!drawerOpen ? (
                       <td
-                        className={`nf-type-body nf-table-cell-inset tabular-nums whitespace-nowrap text-ink-3 ${tableCellClass(selected)}`}
+                        className={`nf-type-body nf-table-cell-inset tabular-nums whitespace-nowrap text-ink-3 ${rowWeight} ${tableCellClass(selected)}`}
                       >
                         {row.lastActive}
                       </td>
                     ) : null}
                     <td
-                      className={`nf-type-body nf-table-cell-inset tabular-nums whitespace-nowrap pr-[8px] ${tableCellClass(selected)}`}
+                      className={`nf-type-body nf-table-cell-inset tabular-nums whitespace-nowrap${!drawerOpen ? " pr-[8px]" : ""} ${rowWeight} ${tableCellClass(selected)}`}
                     >
                       {row.renewal}
                     </td>
                     {!drawerOpen ? (
                       <td
-                        className={`nf-type-body whitespace-nowrap text-ink-3 ${tableCellClass(selected)}`}
+                        className={`nf-type-body whitespace-nowrap text-ink-3 ${rowWeight} ${tableCellClass(selected)}`}
                       >
                         {row.owner}
                       </td>
@@ -445,7 +503,8 @@ export function AccountsScreen() {
             </tbody>
           </table>
         )}
-      </motion.section>
+        </motion.section>
+      </div>
     </AppShell>
   );
 }
