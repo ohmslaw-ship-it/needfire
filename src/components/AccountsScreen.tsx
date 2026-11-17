@@ -371,14 +371,10 @@ export function AccountsScreen() {
                 <th className="nf-type-label nf-table-cell font-medium"> </th>
                 <th
                   className={`nf-type-label nf-table-cell nf-table-cell-inset text-left font-medium${
-                    drawerOpen && compactStatus ? " text-center" : ""
-                  }${drawerOpen && !compactStatus ? " pr-[16px]" : ""}`}
+                    drawerOpen && !compactStatus ? " pr-[16px]" : ""
+                  }`}
                 >
-                  {drawerOpen && compactStatus ? (
-                    <span className="sr-only">Status</span>
-                  ) : (
-                    "Status"
-                  )}
+                  Status
                 </th>
                 <th className="nf-type-label nf-table-cell text-left font-medium">
                   Reason

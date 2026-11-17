@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { Providers } from "@/components/Providers";
 import { fontBody, fontDisplay } from "@/lib/fonts";
-import { siteDescription } from "@/lib/site";
+import { siteDescription, siteOgImage, siteUrl } from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
-    default: "Brief · Needfire",
+    default: "Needfire · A Monday brief for SaaS founders",
     template: "%s · Needfire",
   },
   description: siteDescription,
@@ -14,6 +15,13 @@ export const metadata: Metadata = {
     title: "Needfire",
     description: siteDescription,
     type: "website",
+    url: siteUrl,
+    images: [{ url: siteOgImage }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    description: siteDescription,
+    images: [siteOgImage],
   },
 };
 

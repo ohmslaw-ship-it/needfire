@@ -31,9 +31,7 @@ export function CantWaitCard({ account, selected, onSelect }: CantWaitCardProps)
       <p className="nf-type-body text-ink-2">{account.reason}</p>
       <p className="nf-type-secondary mt-[18px] tabular-nums">{account.whenLabel}</p>
       <div className="mt-5 flex justify-start">
-        <span className="nf-draft-link" data-active={selected ? "" : undefined}>
-          Draft save email
-        </span>
+        <span className="nf-draft-link">Draft email</span>
       </div>
     </article>
   );

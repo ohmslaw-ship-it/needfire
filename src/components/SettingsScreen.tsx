@@ -246,7 +246,9 @@ export function SettingsScreen() {
                 className="nf-type-body w-full max-w-md rounded-lg border border-line bg-card px-3 py-2 focus:border-ink/25"
               />
               <p className="nf-type-secondary mt-2">
-                Stored for this session only, never sent to our servers.
+                Stored for this session only, never sent to our servers. This
+                key only rewrites the read and the email draft. It does not
+                change risk scores.
               </p>
             </div>
           )}

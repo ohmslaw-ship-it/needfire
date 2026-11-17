@@ -328,8 +328,7 @@
   }
 
   .group:hover .nf-draft-link,
-  .group:focus-visible .nf-draft-link,
-  .nf-draft-link[data-active] {
+  .group:focus-visible .nf-draft-link {
     background-size: 100% 1.5px;
   }
 }
@@ -349,8 +348,7 @@
   }
 
   .group:hover .nf-draft-link,
-  .group:focus-visible .nf-draft-link,
-  .nf-draft-link[data-active] {
+  .group:focus-visible .nf-draft-link {
     background-size: 100% 1.5px;
   }
 }

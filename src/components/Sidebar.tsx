@@ -3,7 +3,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { workspace } from "@/data/sample";
 import { useBookSummary } from "@/lib/useBookSummary";
 
 function NeedfireMark() {
@@ -58,7 +57,8 @@ export function Sidebar() {
         <NeedfireMark />
         <span>Needfire</span>
       </div>
-      <div className="nf-type-label mt-11 mb-2.5">{workspace.name}</div>
+      <p className="nf-type-label mt-2">A Monday brief for SaaS founders</p>
+      <div className="nf-type-label mt-11 mb-2.5">Ledgerly · sample workspace</div>
       <nav className="flex flex-col gap-0.5">
         <NavLink href="/" active={onBrief}>
           Brief
@@ -75,11 +75,10 @@ export function Sidebar() {
         <div className="nf-type-secondary tabular-nums">{arrLabel} at risk</div>
         <Link
           href="/case-study"
-          className="nf-type-secondary mt-3 block font-medium text-ink-3 transition-colors duration-200 hover:text-ink-2"
+          className="nf-type-secondary mt-3 block font-medium text-ink-2 transition-colors duration-200 hover:text-ink"
         >
-          Case study
+          Read the case study
         </Link>
-        <div className="nf-type-label mt-1.5">Demo data</div>
       </div>
     </aside>
   );

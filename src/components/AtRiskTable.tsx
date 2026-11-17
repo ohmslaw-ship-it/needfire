@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import Link from "next/link";
 import { motion } from "motion/react";
 import { atRiskAccounts } from "@/data/sample";
 import { useComputedAccounts } from "@/lib/useComputedAccounts";
@@ -38,9 +39,12 @@ export function AtRiskTable({ selectedId, onSelect }: AtRiskTableProps) {
       <div className="mb-2 flex items-baseline gap-2.5">
         <h2 className="nf-type-section">At risk</h2>
         <span className="nf-type-secondary">{totalLabel}</span>
-        <span className="nf-type-secondary ml-auto font-semibold text-ink-2">
+        <Link
+          href="/accounts"
+          className="nf-type-secondary ml-auto font-semibold text-ink-2 transition-colors duration-200 hover:text-ink"
+        >
           View all
-        </span>
+        </Link>
       </div>
       <table className="nf-table-fixed w-full border-collapse">
         <colgroup>

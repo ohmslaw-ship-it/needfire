@@ -13,6 +13,9 @@ export function BriefHeader() {
         Good morning, {workspace.userFirstName}
       </h1>
       <p className="nf-type-body text-ink-2">{sentence}</p>
+      <p className="nf-type-secondary mt-1.5">
+        Sample workspace for Ledgerly, an invoicing SaaS.
+      </p>
     </header>
   );
 }

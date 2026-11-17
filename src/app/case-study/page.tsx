@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { CaseStudyScreen } from "@/components/CaseStudyScreen";
-import { siteDescription } from "@/lib/site";
+import { siteDescription, siteOgImage, siteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Case study",
@@ -8,6 +8,14 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Case study · Needfire",
     description: siteDescription,
+    type: "website",
+    url: `${siteUrl}case-study`,
+    images: [{ url: siteOgImage }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    description: siteDescription,
+    images: [siteOgImage],
   },
 };
 

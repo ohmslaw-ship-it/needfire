@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { motion } from "motion/react";
-import { defaultSelectedAccountId } from "@/data/sample";
 import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 import { AccountDrawer } from "./AccountDrawer";
 import { AppShell } from "./AppShell";
@@ -23,9 +22,7 @@ function rise(reduced: boolean, delay: number) {
 
 export function BriefScreen() {
   const reducedMotion = usePrefersReducedMotion();
-  const [selectedId, setSelectedId] = useState<string | null>(
-    defaultSelectedAccountId,
-  );
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   return (
     <AppShell

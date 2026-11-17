@@ -142,7 +142,7 @@ function AccountDrawerBody({
 
           <section className="mt-[30px] flex flex-1 flex-col">
             <div className="flex items-baseline justify-between">
-              <h4 className="nf-type-label font-semibold text-ink">Save email</h4>
+              <h4 className="nf-type-label font-semibold text-ink">Email draft</h4>
               <div className="nf-type-secondary flex gap-3.5">
                 {toneLabels.map(({ id, label }) => (
                   <button

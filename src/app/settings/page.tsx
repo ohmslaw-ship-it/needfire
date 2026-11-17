@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SettingsScreen } from "@/components/SettingsScreen";
-import { siteDescription } from "@/lib/site";
+import { siteDescription, siteOgImage, siteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -8,6 +8,14 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Settings · Needfire",
     description: siteDescription,
+    type: "website",
+    url: `${siteUrl}settings`,
+    images: [{ url: siteOgImage }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    description: siteDescription,
+    images: [siteOgImage],
   },
 };
 
