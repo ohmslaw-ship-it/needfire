@@ -27,12 +27,11 @@ export function RiskBar({
   );
 }
 
-export function tableCellClass(selected: boolean, edge = false) {
+export function tableCellClass(selected: boolean) {
   return [
     "nf-table-cell transition-colors duration-150",
     "group-hover:bg-[rgba(22,24,29,0.03)]",
-    selected ? "bg-[rgba(22,24,29,0.03)]" : "",
-    edge && selected ? "shadow-[inset_2px_0_0_#D9461F]" : "",
+    selected ? "bg-[rgba(22,24,29,0.05)]" : "",
   ]
     .filter(Boolean)
     .join(" ");

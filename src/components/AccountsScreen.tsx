@@ -356,7 +356,7 @@ export function AccountsScreen() {
                     {...rowMotion(row.id, index)}
                   >
                     <td
-                      className={`nf-type-body whitespace-nowrap font-medium ${tableCellClass(selected, true)}`}
+                      className={`nf-type-body whitespace-nowrap ${selected ? "font-semibold" : "font-medium"} ${tableCellClass(selected)}`}
                     >
                       {row.name}
                     </td>
