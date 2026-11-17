@@ -73,6 +73,12 @@ export function Sidebar() {
       <div className="mt-auto">
         <div className="nf-type-secondary tabular-nums">{live.critical} critical</div>
         <div className="nf-type-secondary tabular-nums">{arrLabel} at risk</div>
+        <Link
+          href="/case-study"
+          className="nf-type-secondary mt-3 block font-medium text-ink-3 transition-colors duration-200 hover:text-ink-2"
+        >
+          Case study
+        </Link>
         <div className="nf-type-label mt-1.5">Demo data</div>
       </div>
     </aside>

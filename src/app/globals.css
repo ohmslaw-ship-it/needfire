@@ -238,6 +238,18 @@
     animation: nf-risk-grow 640ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
+  .nf-case-study-h2 {
+    margin-top: 56px;
+  }
+
+  .nf-case-study > h1 + .nf-case-study-h2 {
+    margin-top: 40px;
+  }
+
+  .nf-case-study-figure + .nf-case-study-h2 {
+    margin-top: 56px;
+  }
+
   .nf-draft-link {
     font-size: var(--nf-size-body);
     font-weight: 600;

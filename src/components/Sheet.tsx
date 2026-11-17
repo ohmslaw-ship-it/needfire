@@ -6,18 +6,23 @@ type SheetProps = {
   showDrawer?: boolean;
   /** When false the drawer column collapses and the table takes the width. */
   drawerOpen?: boolean;
+  /** Case study and other reading layouts omit the nav column. */
+  showSidebar?: boolean;
 };
 
 export function Sheet({
   children,
   showDrawer = false,
   drawerOpen = false,
+  showSidebar = true,
 }: SheetProps) {
-  const columns = showDrawer
-    ? drawerOpen
-      ? "200px minmax(0,1fr) 376px"
-      : "200px minmax(0,1fr) 0px"
-    : "200px minmax(0,1fr)";
+  const columns = !showSidebar
+    ? "minmax(0,1fr)"
+    : showDrawer
+      ? drawerOpen
+        ? "200px minmax(0,1fr) 376px"
+        : "200px minmax(0,1fr) 0px"
+      : "200px minmax(0,1fr)";
 
   return (
     <div
