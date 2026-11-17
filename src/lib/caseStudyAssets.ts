@@ -2,9 +2,17 @@ import fs from "node:fs";
 import path from "node:path";
 
 export const CASE_STUDY_SHOTS = [
-  { slug: "brief", file: "brief.png", caption: "Morning brief" },
-  { slug: "accounts", file: "accounts.png", caption: "Accounts" },
-  { slug: "settings", file: "settings.png", caption: "Settings" },
+  { slug: "brief", file: "brief.png", caption: "The Monday brief" },
+  {
+    slug: "accounts",
+    file: "accounts.png",
+    caption: "Accounts with the drawer open",
+  },
+  {
+    slug: "settings",
+    file: "settings.png",
+    caption: "Settings: scoring rules that drive the scores",
+  },
 ] as const;
 
 export function getCaseStudyShotAvailability(): Record<string, boolean> {

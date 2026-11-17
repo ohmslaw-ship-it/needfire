@@ -1,5 +1,23 @@
 import { CASE_STUDY_SHOTS } from "./caseStudyAssets";
 
+const PRODUCT_SECTION = /what['']s in the product/i;
+
+const PRODUCT_SCREENSHOTS = [
+  { paragraphPrefix: "**Brief.**", file: "brief.png" as const },
+  { paragraphPrefix: "**Accounts.**", file: "accounts.png" as const },
+  { paragraphPrefix: "**Settings.**", file: "settings.png" as const },
+] as const;
+
+function h2Title(line: string): string | null {
+  const match = /^##\s+(.+?)\s*$/.exec(line);
+  if (!match) return null;
+  return match[1].replace(/\*\*/g, "").trim();
+}
+
+const captionByFile = Object.fromEntries(
+  CASE_STUDY_SHOTS.map((shot) => [shot.file, shot.caption]),
+) as Record<(typeof CASE_STUDY_SHOTS)[number]["file"], string>;
+
 export function enrichCaseStudyMarkdown(
   source: string,
   availability: Record<string, boolean>,
@@ -7,29 +25,30 @@ export function enrichCaseStudyMarkdown(
   const lines = source.split(/\r?\n/);
   const out: string[] = [];
   let inProduct = false;
-  const queue = [...CASE_STUDY_SHOTS];
 
   for (const line of lines) {
     out.push(line);
-    const h2 = /^##\s+(.+?)\s*$/.exec(line);
-    if (!h2) continue;
 
-    const title = h2[1];
-    if (/what['']s in the product/i.test(title)) {
-      inProduct = true;
+    const title = h2Title(line);
+    if (title) {
+      if (PRODUCT_SECTION.test(title)) {
+        inProduct = true;
+      } else if (inProduct) {
+        inProduct = false;
+      }
       continue;
     }
 
-    if (!inProduct || queue.length === 0) continue;
+    if (!inProduct) continue;
 
-    const shot =
-      CASE_STUDY_SHOTS.find((s) => title.toLowerCase().includes(s.slug)) ?? queue.shift();
-    if (!shot || !availability[shot.file]) continue;
+    for (const placement of PRODUCT_SCREENSHOTS) {
+      if (!line.startsWith(placement.paragraphPrefix)) continue;
+      if (!availability[placement.file]) break;
 
-    const idx = queue.findIndex((s) => s.slug === shot.slug);
-    if (idx >= 0) queue.splice(idx, 1);
-
-    out.push(`\n![${shot.caption}](case-shot://${shot.file})\n`);
+      const caption = captionByFile[placement.file];
+      out.push(`\n![${caption}](case-shot://${placement.file})\n`);
+      break;
+    }
   }
 
   return out.join("\n");

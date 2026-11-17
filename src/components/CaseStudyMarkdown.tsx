@@ -1,9 +1,29 @@
+import { Children, Fragment, isValidElement, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import type { Components } from "react-markdown";
+import type { Element } from "hast";
 import type { getCaseStudyShotAvailability } from "@/lib/caseStudyAssets";
 import { CaseStudyFigure } from "./CaseStudyFigure";
 
 type Availability = ReturnType<typeof getCaseStudyShotAvailability>;
+
+function paragraphIsOnlyImage(node: Element | undefined): boolean {
+  if (!node || node.tagName !== "p") return false;
+  const meaningful = node.children.filter(
+    (child) => child.type !== "text" || (child.value?.trim() ?? "") !== "",
+  );
+  return (
+    meaningful.length === 1 &&
+    meaningful[0].type === "element" &&
+    meaningful[0].tagName === "img"
+  );
+}
+
+function paragraphIsOnlyFigureChild(children: ReactNode): boolean {
+  const items = Children.toArray(children);
+  if (items.length !== 1 || !isValidElement(items[0])) return false;
+  return items[0].type === CaseStudyFigure;
+}
 
 function buildComponents(availability: Availability): Components {
   return {
@@ -22,9 +42,17 @@ function buildComponents(availability: Availability): Components {
         {children}
       </h3>
     ),
-    p: ({ children }) => (
-      <p className="my-5 text-[17px] leading-[1.7] text-ink-2">{children}</p>
-    ),
+    p: ({ children, node }) => {
+      if (
+        paragraphIsOnlyImage(node as Element | undefined) ||
+        paragraphIsOnlyFigureChild(children)
+      ) {
+        return <Fragment>{children}</Fragment>;
+      }
+      return (
+        <p className="my-5 text-[17px] leading-[1.7] text-ink-2">{children}</p>
+      );
+    },
     strong: ({ children }) => <strong className="font-semibold text-ink">{children}</strong>,
     ul: ({ children }) => (
       <ul className="my-5 list-disc space-y-2.5 pl-[1.15rem] text-[17px] leading-[1.7] text-ink-2 marker:text-ink-3">
