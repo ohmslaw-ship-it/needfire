@@ -89,9 +89,9 @@ function StatusCell({ status }: { status: AccountStatus }) {
     status === "critical" ? "text-ember font-medium" : "text-ink-3";
 
   return (
-    <span className="inline-flex items-center gap-2">
+    <span className="inline-flex items-center gap-2 whitespace-nowrap">
       <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${dotClass}`} />
-      <span className={`nf-type-body ${textClass}`}>{label}</span>
+      <span className={`nf-type-body whitespace-nowrap ${textClass}`}>{label}</span>
     </span>
   );
 }
@@ -120,6 +120,7 @@ export function AccountsScreen() {
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
   const counts = useMemo(() => statusCounts(allAccounts), [allAccounts]);
+  const drawerOpen = selectedId !== null;
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -239,7 +240,7 @@ export function AccountsScreen() {
   return (
     <AppShell
       fixedHeader={fixedHeader}
-      drawerOpen={selectedId !== null}
+      drawerOpen={drawerOpen}
       drawer={
         <AccountDrawer
           accountId={selectedId}
@@ -256,15 +257,29 @@ export function AccountsScreen() {
         ) : (
           <table className="nf-table-fixed border-collapse">
             <colgroup>
-              <col style={{ width: "22%" }} />
-              <col style={{ width: "9%" }} />
-              <col style={{ width: "5%" }} />
-              <col style={{ width: "7%" }} />
-              <col style={{ width: "10%" }} />
-              <col style={{ width: "25%" }} />
-              <col style={{ width: "9%" }} />
-              <col style={{ width: "8%" }} />
-              <col style={{ width: "5%" }} />
+              {drawerOpen ? (
+                <>
+                  <col style={{ width: "26%" }} />
+                  <col style={{ width: "11%" }} />
+                  <col style={{ width: "5%" }} />
+                  <col style={{ width: "10%" }} />
+                  <col style={{ width: "13%" }} />
+                  <col style={{ width: "25%" }} />
+                  <col style={{ width: "10%" }} />
+                </>
+              ) : (
+                <>
+                  <col style={{ width: "22%" }} />
+                  <col style={{ width: "9%" }} />
+                  <col style={{ width: "5%" }} />
+                  <col style={{ width: "7%" }} />
+                  <col style={{ width: "10%" }} />
+                  <col style={{ width: "25%" }} />
+                  <col style={{ width: "9%" }} />
+                  <col style={{ width: "8%" }} />
+                  <col style={{ width: "5%" }} />
+                </>
+              )}
             </colgroup>
             <thead className="nf-table-head">
               <tr>
@@ -304,30 +319,36 @@ export function AccountsScreen() {
                   <SortArrow active={sortKey === "risk"} dir={sortDir} />
                 </th>
                 <th className="nf-type-label nf-table-cell font-medium"> </th>
-                <th className="nf-type-label nf-table-cell nf-table-cell-inset text-left font-medium">
+                <th
+                  className={`nf-type-label nf-table-cell nf-table-cell-inset text-left font-medium ${
+                    drawerOpen ? "pr-[16px]" : ""
+                  }`}
+                >
                   Status
                 </th>
                 <th className="nf-type-label nf-table-cell text-left font-medium">
                   Reason
                 </th>
+                {!drawerOpen ? (
+                  <th
+                    className={`${thClass("lastActive")} nf-table-cell-inset`}
+                    tabIndex={0}
+                    aria-sort={
+                      sortKey === "lastActive"
+                        ? sortDir === "asc"
+                          ? "ascending"
+                          : "descending"
+                        : "none"
+                    }
+                    onClick={() => toggleColumnSort("lastActive")}
+                    onKeyDown={onSortKey("lastActive")}
+                  >
+                    Last active
+                    <SortArrow active={sortKey === "lastActive"} dir={sortDir} />
+                  </th>
+                ) : null}
                 <th
-                  className={`${thClass("lastActive")} nf-table-cell-inset`}
-                  tabIndex={0}
-                  aria-sort={
-                    sortKey === "lastActive"
-                      ? sortDir === "asc"
-                        ? "ascending"
-                        : "descending"
-                      : "none"
-                  }
-                  onClick={() => toggleColumnSort("lastActive")}
-                  onKeyDown={onSortKey("lastActive")}
-                >
-                  Last active
-                  <SortArrow active={sortKey === "lastActive"} dir={sortDir} />
-                </th>
-                <th
-                  className={`${thClass("renewal")} nf-table-cell-inset`}
+                  className={`${thClass("renewal")} nf-table-cell-inset whitespace-nowrap pr-[8px]`}
                   tabIndex={0}
                   aria-sort={
                     sortKey === "renewal"
@@ -342,9 +363,11 @@ export function AccountsScreen() {
                   Renewal
                   <SortArrow active={sortKey === "renewal"} dir={sortDir} />
                 </th>
-                <th className="nf-type-label nf-table-cell text-left font-medium">
-                  Owner
-                </th>
+                {!drawerOpen ? (
+                  <th className="nf-type-label nf-table-cell text-left font-medium">
+                    Owner
+                  </th>
+                ) : null}
               </tr>
             </thead>
             <tbody>
@@ -385,7 +408,9 @@ export function AccountsScreen() {
                       <RiskBar risk={row.risk} status={row.status} />
                     </td>
                     <td
-                      className={`nf-table-cell-inset whitespace-nowrap ${tableCellClass(selected)}`}
+                      className={`nf-table-cell-inset whitespace-nowrap ${
+                        drawerOpen ? "pr-[16px]" : ""
+                      } ${tableCellClass(selected)}`}
                     >
                       <StatusCell status={row.status} />
                     </td>
@@ -395,21 +420,25 @@ export function AccountsScreen() {
                     >
                       {row.reason}
                     </td>
+                    {!drawerOpen ? (
+                      <td
+                        className={`nf-type-body nf-table-cell-inset tabular-nums whitespace-nowrap text-ink-3 ${tableCellClass(selected)}`}
+                      >
+                        {row.lastActive}
+                      </td>
+                    ) : null}
                     <td
-                      className={`nf-type-body nf-table-cell-inset tabular-nums whitespace-nowrap text-ink-3 ${tableCellClass(selected)}`}
-                    >
-                      {row.lastActive}
-                    </td>
-                    <td
-                      className={`nf-type-body nf-table-cell-inset tabular-nums whitespace-nowrap ${tableCellClass(selected)}`}
+                      className={`nf-type-body nf-table-cell-inset tabular-nums whitespace-nowrap pr-[8px] ${tableCellClass(selected)}`}
                     >
                       {row.renewal}
                     </td>
-                    <td
-                      className={`nf-type-body whitespace-nowrap text-ink-3 ${tableCellClass(selected)}`}
-                    >
-                      {row.owner}
-                    </td>
+                    {!drawerOpen ? (
+                      <td
+                        className={`nf-type-body whitespace-nowrap text-ink-3 ${tableCellClass(selected)}`}
+                      >
+                        {row.owner}
+                      </td>
+                    ) : null}
                   </motion.tr>
                 );
               })}
