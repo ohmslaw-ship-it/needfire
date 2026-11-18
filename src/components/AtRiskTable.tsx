@@ -3,7 +3,6 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { atRiskAccounts } from "@/data/sample";
 import { useComputedAccounts } from "@/lib/useComputedAccounts";
 import { useRowIntro } from "@/lib/useRowIntro";
 import { RiskBar, tableCellClass } from "./RiskBar";
@@ -18,20 +17,11 @@ export function AtRiskTable({ selectedId, onSelect }: AtRiskTableProps) {
   const rowMotion = useRowIntro();
 
   const { rows, totalLabel } = useMemo(() => {
-    const byId = new Map(accounts.map((a) => [a.id, a]));
-    const rows = atRiskAccounts.map((seed) => {
-      const live = byId.get(seed.id);
-      const risk = live?.risk ?? seed.risk;
-      const status = live?.status ?? (seed.tier === "crit" ? "critical" : "watch");
-      return {
-        ...seed,
-        arr: live?.arr ?? seed.arr,
-        risk,
-        status,
-      };
-    });
-    const flagged = accounts.filter((a) => a.status !== "healthy").length;
-    return { rows, totalLabel: `${flagged} accounts` };
+    const atRisk = accounts.filter((a) => a.status !== "healthy");
+    const rows = [...accounts]
+      .sort((a, b) => b.risk - a.risk)
+      .slice(0, 6);
+    return { rows, totalLabel: `${rows.length} of ${atRisk.length}` };
   }, [accounts]);
 
   return (

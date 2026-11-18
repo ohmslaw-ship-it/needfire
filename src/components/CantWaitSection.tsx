@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import { cantWaitAccounts } from "@/data/sample";
 import { useComputedAccounts } from "@/lib/useComputedAccounts";
 import { CantWaitCard } from "./CantWaitCard";
 
@@ -13,15 +12,17 @@ type CantWaitSectionProps = {
 export function CantWaitSection({ selectedId, onSelect }: CantWaitSectionProps) {
   const accounts = useComputedAccounts();
   const cards = useMemo(() => {
-    const byId = new Map(accounts.map((a) => [a.id, a]));
-    return cantWaitAccounts.map((seed) => {
-      const live = byId.get(seed.id);
-      return {
-        ...seed,
-        score: live?.risk ?? seed.score,
-        arr: live?.arr ?? seed.arr,
-      };
-    });
+    return [...accounts]
+      .sort((a, b) => b.risk - a.risk)
+      .slice(0, 3)
+      .map((account) => ({
+        id: account.id,
+        name: account.name,
+        score: account.risk,
+        arr: account.arr,
+        reason: account.reason,
+        whenLabel: `Renews ${account.renewal}`,
+      }));
   }, [accounts]);
 
   return (

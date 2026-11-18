@@ -310,10 +310,13 @@ export function AccountsScreen() {
                   <col style={{ width: "5%" }} />
                   <col style={{ width: "10%" }} />
                   <col
-                    style={{ width: compactStatus ? "5%" : "13%" }}
+                    style={{
+                      width: compactStatus ? "2.25rem" : "13%",
+                      minWidth: compactStatus ? "2.25rem" : undefined,
+                    }}
                   />
                   <col
-                    style={{ width: compactStatus ? "33%" : "25%" }}
+                    style={{ width: compactStatus ? "auto" : "25%" }}
                   />
                   <col style={{ width: "10%" }} />
                 </>
@@ -372,9 +375,14 @@ export function AccountsScreen() {
                 <th
                   className={`nf-type-label nf-table-cell nf-table-cell-inset text-left font-medium${
                     drawerOpen && !compactStatus ? " pr-[16px]" : ""
-                  }`}
+                  }${compactStatus ? " w-[2.25rem] max-w-[2.25rem] px-1" : ""}`}
+                  aria-label="Status"
                 >
-                  Status
+                  {compactStatus ? (
+                    <span className="sr-only">Status</span>
+                  ) : (
+                    "Status"
+                  )}
                 </th>
                 <th className="nf-type-label nf-table-cell text-left font-medium">
                   Reason
@@ -460,7 +468,9 @@ export function AccountsScreen() {
                     </td>
                     <td
                       className={`nf-table-cell-inset whitespace-nowrap ${
-                        drawerOpen && compactStatus ? "text-center" : ""
+                        drawerOpen && compactStatus
+                          ? "w-[2.25rem] max-w-[2.25rem] px-1 text-center"
+                          : ""
                       }${drawerOpen && !compactStatus ? " pr-[16px]" : ""} ${tableCellClass(selected)}`}
                     >
                       <StatusCell
