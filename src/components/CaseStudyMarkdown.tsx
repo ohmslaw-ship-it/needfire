@@ -65,14 +65,19 @@ function buildComponents(availability: Availability): Components {
       </ol>
     ),
     li: ({ children }) => <li className="pl-0.5">{children}</li>,
-    a: ({ href, children }) => (
-      <a
-        href={href}
-        className="font-medium text-ink-2 underline decoration-ember decoration-[1.5px] underline-offset-[3px] transition-colors hover:text-ink"
-      >
-        {children}
-      </a>
-    ),
+    a: ({ href, children }) => {
+      const isExternal =
+        typeof href === "string" && (href.startsWith("http://") || href.startsWith("https://"));
+      return (
+        <a
+          href={href}
+          {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+          className="font-medium text-ink-2 underline decoration-ember decoration-[1.5px] underline-offset-[3px] transition-colors hover:text-ink"
+        >
+          {children}
+        </a>
+      );
+    },
     hr: () => <hr className="my-10 border-0 border-t border-line" />,
     blockquote: ({ children }) => (
       <blockquote className="my-6 border-l-2 border-line pl-5 text-[17px] leading-[1.7] text-ink-2">

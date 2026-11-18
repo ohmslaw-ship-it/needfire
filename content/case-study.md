@@ -1,5 +1,7 @@
 # **Needfire**
 
+By Om Raje · Product & UI/UX
+
 A Monday brief for SaaS founders: who is going quiet, why, and what to send them.
 
 **Role:** Solo. I defined the product, designed the interface, and built the working app with AI coding tools in Cursor.
@@ -65,3 +67,9 @@ I have not run this with real customers yet, so everything here is a design hypo
 - **Churn prevented:** over a quarter, a drop in logo churn or at-risk ARR among accounts that received a drafted email, compared with a baseline period. I would instrument this only after live data is connected.
 
 Needfire is a founder-first Monday view, not an enterprise CS platform. The job is to make the quiet accounts visible in time to do something about them.
+
+---
+
+Designed and built by Om Raje.
+
+[LinkedIn](https://www.linkedin.com/in/om-raje-a06103286) · [GitHub](https://github.com/ohmslaw-ship-it)
